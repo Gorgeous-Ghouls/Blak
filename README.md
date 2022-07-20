@@ -1,3 +1,1 @@
-#  Gorgeous-Ghouls Project
-
-
+# Gorgeous-Ghouls Project
