@@ -34,3 +34,8 @@ jobs:
 
       - name: Run pre-commit hooks
         uses: pre-commit/action@v3.0.0
+
+      - name: Check for Valid commit message
+        run: |
+          echo ${{ github.event.commits[0].message }} >> /tmp/msg
+          pre-commit run --hook-stage commit-msg --commit-msg-filename /tmp/msg
