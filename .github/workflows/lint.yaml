@@ -23,6 +23,10 @@ jobs:
 
     steps:
       # Checks out the repository in the current folder.
+      - name: Info dump
+        run: |
+          echo ${{ github.event_name }}
+
       - name: Checks out repository
         uses: actions/checkout@v3
 
