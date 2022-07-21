@@ -26,4 +26,4 @@ jobs:
           python -m pip install pre-commit
           python -m pip freeze --local
           echo ${{ github.event.commits[0].message }} >> /tmp/msg
-          pre-commit run --hook-stage commit-msg --commit-msg-filename /tmp/msg
+          pre-commit run --hook-stage commit-msg --commit-msg-filename /tmp/msg check-commit-msg
