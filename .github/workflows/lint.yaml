@@ -47,7 +47,7 @@ jobs:
           if   [[ '${{ github.event_name }}' == 'push' ]]; then
             echo $(git log --format=%B -n 1 HEAD) >> /tmp/msg
           elif [[ '${{ github.event_name }}' == 'pull_request' ]]; then
-            echo $(git log --format=%B -n 1 HEAD^2) >> /tmp/mdg
+            echo $(git log --format=%B -n 1 HEAD^2) >> /tmp/msg
           fi
 
       - name: Check for Valid commit message
