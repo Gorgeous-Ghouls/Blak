@@ -29,6 +29,8 @@ jobs:
 
       - name: Checks out repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
 
       # Set up the right version of Python
       - name: Set up Python ${{ env.PYTHON_VERSION }}
@@ -39,15 +41,14 @@ jobs:
       - name: Run pre-commit hooks
         uses: pre-commit/action@v3.0.0
 
-      - name: set commit message in pull_request
+      - name: Get commit message
+        id: get_commit_message
         run: |
-          echo $(git log --format=%B -n 1 ${{github.event.after}}) >> /tmp/msg
-        if: github.event_name == 'pull_request'
-
-      - name: set commit message in push
-        run: |
-          echo ${{ github.event.head_commit.message }} >> /tmp/msg
-        if: github.event_name == 'push'
+          if   [[ '${{ github.event_name }}' == 'push' ]]; then
+            echo $(git log --format=%B -n 1 HEAD) >> /tmp/msg
+          elif [[ '${{ github.event_name }}' == 'pull_request' ]]; then
+            echo $(git log --format=%B -n 1 HEAD^2) >> /tmp/mdg
+          fi
 
       - name: Check for Valid commit message
         run: |
