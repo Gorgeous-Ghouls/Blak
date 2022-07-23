@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 import websockets
 from kivy.app import App
@@ -19,7 +20,7 @@ class ClientUI(App):
         """Main function that is called when window for Kivy is being generated add/load kv files here"""
         pass
 
-    async def app_func(self):
+    async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously
 
         run_wrapper starts kivy app and waits for it to finish
@@ -65,8 +66,12 @@ class ClientUI(App):
 
             await asyncio.sleep(0)
 
-    def send_data(self, instance, value=None):
-        """Wrapper around  WebSocketClientProtocol.send so that kivy event bindings work normally."""
+    def send_data(self, instance: Any, value: str | int = None) -> None:
+        """Wrapper around  WebSocketClientProtocol.send so that kivy event bindings work normally.
+
+        :param instance Object that is sending the data
+        :param value value that the object represents
+        """
         if value is None:
             value = "test"
 
