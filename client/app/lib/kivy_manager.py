@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any
 
+import kivymd.uix.button
 import websockets
 from kivy import Logger
 from kivy.core.window import Window
@@ -21,7 +22,31 @@ class TitleBar(MDFloatLayout):
 
     md_bg_color = get_color_from_hex(Colors.accent_bg.value)
     button_bg = get_color_from_hex(Colors.primary_bg.value)
-    button_size = "10sp"
+    button_size = "15sp"
+
+    def __init__(self):
+        super(TitleBar, self).__init__()
+        self.app: MDApp = MDApp.get_running_app()
+
+    def handle_buttons(self, instance: kivymd.uix.button.BaseButton):
+        """Callback Function for all buttons in titlebar
+
+        :param instance a button object that is a subclass of kivymd.uix.button.BaseButton
+
+        A button object was chosen instead of say a string, so that later on the caller itself can be edited
+        """
+        match_string = None
+        if hasattr(instance, "icon"):
+            match_string = instance.icon
+
+        if match_string:
+            match match_string:
+                case "close":
+                    self.app.stop()
+                case "window-minimize":
+                    self.app.root_window.minimize()
+                case "window-maximize":
+                    self.app.root_window.maximize()
 
 
 class ClientUI(MDApp):
