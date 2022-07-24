@@ -9,6 +9,7 @@ from kivy.lang.builder import Builder
 from kivy.modules import inspector
 from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.floatlayout import MDFloatLayout
 
 from ..utils import Colors, app_dir
@@ -61,7 +62,7 @@ class ClientUI(MDApp):
 
     def build(self):
         """Main function that is called when window for Kivy is being generated add/load kv files here"""
-        root: MDFloatLayout
+        root: MDBoxLayout
         root = Builder.load_file(str(app_dir / "lib/kv_files/client_ui.kv"))
         root.md_bg_color = get_color_from_hex(Colors.primary_bg.value)
         title_bar = TitleBar()
