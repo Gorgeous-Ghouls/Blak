@@ -2,14 +2,13 @@ import asyncio
 from typing import Any
 
 import websockets
+from kivy import Logger
 from kivy.app import App
-from kivy.logger import Logger
 
 
 class ClientUI(App):
     """Main Class to Build frontend on."""
 
-    other_task = None
     ws: websockets.WebSocketClientProtocol = None
 
     def __init__(self, **kwargs):

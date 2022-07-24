@@ -4,13 +4,13 @@ import asyncio
 import random
 
 import websockets
-from loguru import logger
+from kivy import Logger
 
 
 async def echo(websocket):
     """Send Random message back."""
     async for message in websocket:
-        logger.debug(f"Received {message}")
+        Logger.debug(f"DummyServer: Received {message}")
         await websocket.send(str(random.random()))
 
 
