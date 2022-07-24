@@ -3,10 +3,10 @@ from typing import Any
 
 import websockets
 from kivy import Logger
-from kivy.app import App
+from kivymd.app import MDApp
 
 
-class ClientUI(App):
+class ClientUI(MDApp):
     """Main Class to Build frontend on."""
 
     ws: websockets.WebSocketClientProtocol = None
