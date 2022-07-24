@@ -4,6 +4,9 @@ version = "0.2.0"
 description = "An uncompromising chat client made in python \nA chat client that has many features that help the user in getting a experience they never had before"
 authors = ["p0lygun <solankivibhakar82@mail.com>"]  # todo: all team members add themselves
 license = "MIT"
+packages= [
+    {include = "app"}
+]
 
 [tool.poetry.dependencies]
 python = "3.10.*"
@@ -25,3 +28,7 @@ black = "^22.6.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.scripts]
+"blak" = "app.__main__:main"
