@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import Dict, List
 
 import aiofiles
@@ -38,6 +39,7 @@ class DbManager:
     def __init__(self, user_db_file: str, messages_db_file: str):
         self.user_db_file = user_db_file
         self.rooms_db_file = messages_db_file
+        print("entering")
 
     async def get_user(self, user_id: str) -> Dict:
         """Fetches the user data from Database"""
@@ -59,10 +61,61 @@ class DbManager:
             data = await f.read()
         rooms = json.loads(data)
         room_id = sender_id + reciever_id
-        if room_id in rooms:
+        if ((sender_id + reciever_id) in rooms) or ((reciever_id + sender_id) in rooms):
             return {"error": "room already exists"}
         rooms[room_id] = {
             "room_id": room_id,
             "users": [sender_id, reciever_id],
             "messages": [],
         }
+        async with aiofiles.open(self.rooms_db_file, mode="w") as f:
+            await f.write(json.dumps(rooms))
+        return {"success": {"room_id": room_id}}
+
+    async def create_user(self, username: str, password: str) -> Dict:
+        """Creates a new user"""
+        async with aiofiles.open(self.user_db_file, mode="r") as f:
+            data = await f.read()
+        users = json.loads(data)
+        for i in users:
+            if username in users[i]["username"]:
+                return {"error": "This username already exists"}
+        user_id = str(uuid.uuid4())
+        users[user_id] = {
+            "user_id": user_id,
+            "username": username,
+            "password": password,
+        }
+        async with aiofiles.open(self.user_db_file, mode="w") as f:
+            await f.write(json.dumps(users))
+        return {"success": {"user_id": user_id}}
+
+    async def get_latest_messages(self, room_id: str, n: int = 20) -> List:
+        """Get latest "n" no of messages"""
+        async with aiofiles.open(self.rooms_db_file, mode="r") as f:
+            data = await f.read()
+        rooms = json.loads(data)
+        req_room = rooms[room_id]
+        messages = req_room["messages"]
+        return messages[-n:]
+
+    async def create_message(
+        self, sender_id: str, message: str, timestamp: int, room_id: str
+    ) -> Dict:
+        """Adds a message created by the user to Database"""
+        async with aiofiles.open(self.rooms_db_file, mode="r") as f:
+            data = await f.read()
+        rooms = json.loads(data)
+        req_room = rooms[room_id]
+        message_id = str(uuid.uuid4())
+        req_room["messages"].append(
+            {
+                "message_id": message_id,
+                "sender": sender_id,
+                "message": message,
+                "timestamp": timestamp,
+            }
+        )
+        async with aiofiles.open(self.rooms_db_file, mode="w") as f:
+            await f.write(json.dumps(rooms))
+        return {"success": {"message_id": message_id}}
