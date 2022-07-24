@@ -97,4 +97,10 @@ class MainApp(MDApp):
         self.screen.set_list_md_icons()
 
 
-MainApp().run()
+def main():
+    """Wrapper Function over `MDApp.run()` so that this script can be run as a command script"""
+    MainApp().run()
+
+
+if __name__ == "__main__":
+    main()

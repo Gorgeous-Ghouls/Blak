@@ -32,3 +32,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 "blak" = "app.__main__:main"
+"blak.icon_chooser"= "app.utils.icon-viewer:main"
