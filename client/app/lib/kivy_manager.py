@@ -25,8 +25,8 @@ class TitleBar(MDFloatLayout):
     button_bg = get_color_from_hex(Colors.primary_bg.value)
     button_size = "15sp"
 
-    def __init__(self):
-        super(TitleBar, self).__init__()
+    def __init__(self, **kwargs):
+        super(TitleBar, self).__init__(**kwargs)
         self.app: MDApp = MDApp.get_running_app()
 
     def handle_buttons(self, instance: kivymd.uix.button.BaseButton):
@@ -64,15 +64,12 @@ class ClientUI(MDApp):
         root: MDBoxLayout
         root = Builder.load_file(str(app_dir / "lib/kv_files/client_ui.kv"))
         root.md_bg_color = get_color_from_hex(Colors.primary_bg.value)
-        title_bar = TitleBar()
-        root.add_widget(title_bar)
-        if Window.set_custom_titlebar(title_bar):
+        if Window.set_custom_titlebar(root.ids["titlebar"]):
             Logger.info("Window: setting custom titlebar successful")
         else:
             Logger.info(
                 "Window: setting custom titlebar " "Not allowed on this system "
             )
-        self.title = "Blak"
         inspector.create_inspector(Window, root)
         return root
 

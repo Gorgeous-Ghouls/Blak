@@ -37,3 +37,15 @@
             icon_size: root.button_size
             on_press: root.handle_buttons(self)
 MDBoxLayout:
+    orientation: 'vertical'
+    TitleBar:
+        id: titlebar
+    MDBoxLayout:
+        orientation: 'horizontal'
+        MDBoxLayout:
+            size_hint: 0.3,1
+            md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+            orientation: 'vertical'
+        ScreenManager:
+            id: screen_manager
+            # todo add screens here as more chats are available
