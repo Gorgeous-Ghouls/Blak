@@ -1,23 +1,80 @@
 import asyncio
 from typing import Any
 
+import kivymd.uix.button
 import websockets
 from kivy import Logger
-from kivy.app import App
+from kivy.core.window import Window
+from kivy.lang.builder import Builder
+from kivy.modules import inspector
+from kivy.utils import get_color_from_hex
+from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.floatlayout import MDFloatLayout
+
+from ..utils import Colors, app_dir
+
+Window.borderless = True
+Window.custom_titlebar = True
 
 
-class ClientUI(App):
+class TitleBar(MDFloatLayout):
+    """Custom TitleBar for the app"""
+
+    md_bg_color = get_color_from_hex(Colors.accent_bg.value)
+    button_bg = get_color_from_hex(Colors.primary_bg.value)
+    button_size = "15sp"
+
+    def __init__(self):
+        super(TitleBar, self).__init__()
+        self.app: MDApp = MDApp.get_running_app()
+
+    def handle_buttons(self, instance: kivymd.uix.button.BaseButton):
+        """Callback Function for all buttons in titlebar
+
+        :param instance a button object that is a subclass of kivymd.uix.button.BaseButton
+
+        A button object was chosen instead of say a string, so that later on the caller itself can be edited
+        """
+        match_string = None
+        if hasattr(instance, "icon"):
+            match_string = instance.icon
+
+        if match_string:
+            match match_string:
+                case "close":
+                    self.app.stop()
+                case "window-minimize":
+                    self.app.root_window.minimize()
+                case "window-maximize":
+                    self.app.root_window.maximize()
+
+
+class ClientUI(MDApp):
     """Main Class to Build frontend on."""
 
     ws: websockets.WebSocketClientProtocol = None
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(title="Blak", **kwargs)
         self.ws_handler_task = None
 
     def build(self):
         """Main function that is called when window for Kivy is being generated add/load kv files here"""
-        pass
+        root: MDBoxLayout
+        root = Builder.load_file(str(app_dir / "lib/kv_files/client_ui.kv"))
+        root.md_bg_color = get_color_from_hex(Colors.primary_bg.value)
+        title_bar = TitleBar()
+        root.add_widget(title_bar)
+        if Window.set_custom_titlebar(title_bar):
+            Logger.info("Window: setting custom titlebar successful")
+        else:
+            Logger.info(
+                "Window: setting custom titlebar " "Not allowed on this system "
+            )
+        self.title = "Blak"
+        inspector.create_inspector(Window, root)
+        return root
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously
@@ -58,7 +115,7 @@ class ClientUI(App):
                     self.ws = await websockets.connect("ws://localhost:8765")
                     await self.connection_established()
                     connection_closed = False
-                except OSError:
+                except (OSError, asyncio.exceptions.CancelledError):
                     await self.connection_lost()
                     await asyncio.sleep(5)  # try after 5 secs
                     pass
