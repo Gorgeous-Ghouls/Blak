@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "Name"
+name = "Blak-server"
 version = "0.1.0"
-description = ""
-authors = ["Author 1 <email@mail.com>"]
+description = "Server for Blak chat client"
+authors = ["p0lygun <solankivibhakar82@mail.com>"]  # todo: all team members add themselves
 license = "MIT"
 
 [tool.poetry.dependencies]
