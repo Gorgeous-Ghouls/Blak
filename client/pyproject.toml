@@ -9,7 +9,7 @@ license = "MIT"
 python = "3.10.*"
 Kivy = "^2.1.0"
 websockets = "^10.3"
-kivymd = "0.104.2"
+kivymd = {git = "https://github.com/kivymd/KivyMD.git"}
 
 [tool.poetry.dev-dependencies]
 # Base tools

@@ -216,11 +216,12 @@ requests = "*"
 
 [[package]]
 name = "kivymd"
-version = "0.104.2"
+version = "1.0.0.dev0"
 description = "Set of widgets for Kivy inspired by Google's Material Design"
 category = "main"
 optional = false
 python-versions = ">=3.6"
+develop = false
 
 [package.dependencies]
 kivy = ">=2.0.0"
@@ -228,7 +229,13 @@ pillow = "*"
 
 [package.extras]
 dev = ["pre-commit", "black", "isort", "flake8", "pytest", "pytest-cov", "pytest-asyncio", "pytest-timeout", "coveralls", "pyinstaller"]
-docs = ["sphinx", "sphinx-autoapi (==1.4.0)", "sphinx-rtd-theme", "sphinx-notfound-page"]
+docs = ["sphinx", "sphinx-autoapi (==1.4.0)", "furo", "sphinx-notfound-page"]
+
+[package.source]
+type = "git"
+url = "https://github.com/kivymd/KivyMD.git"
+reference = "master"
+resolved_reference = "041eaaf4dddbb33518326caccca6488e7c5d0dfd"
 
 [[package]]
 name = "mccabe"
@@ -459,7 +466,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.*"
-content-hash = "ae3c9f0e3bd7d5b277006e67719018cdf221ac064a353075e718a9d31fed571f"
+content-hash = "2f90c497c8a21105c18a3973190f64e6ffdf0de77ea74a9e7387022fa5be1203"
 
 [metadata.files]
 black = [
@@ -596,10 +603,7 @@ kivy-garden = [
     {file = "Kivy Garden-0.1.5.tar.gz", hash = "sha256:2b8377378e87501d5d271f33d94f0e44c089884572c64f89c9d609b1f86a2748"},
     {file = "Kivy_Garden-0.1.5-py3-none-any.whl", hash = "sha256:ef50f44b96358cf10ac5665f27a4751bb34ef54051c54b93af891f80afe42929"},
 ]
-kivymd = [
-    {file = "kivymd-0.104.2-py3-none-any.whl", hash = "sha256:c1fbbdaa31b62fa925abac1cadadfdf178a15f1adc3f2e2452e1496a91eab8e1"},
-    {file = "kivymd-0.104.2.tar.gz", hash = "sha256:97bc1f9442d25ff9dbd617d5ca74d53e757b92c68636a388e22d3f05a4f19c12"},
-]
+kivymd = []
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
