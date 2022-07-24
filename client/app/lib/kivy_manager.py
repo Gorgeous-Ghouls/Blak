@@ -56,9 +56,8 @@ class ClientUI(MDApp):
     ws: websockets.WebSocketClientProtocol = None
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(title="Blak", **kwargs)
         self.ws_handler_task = None
-        self.title = "Blak"
 
     def build(self):
         """Main function that is called when window for Kivy is being generated add/load kv files here"""
