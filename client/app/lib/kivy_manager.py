@@ -145,3 +145,8 @@ class ClientUI(MDApp):
         """Function called whenever connection with the server is established"""
         Logger.info("WS: Connected")
         # todo enumerate things that are needed to be done when connection is established
+
+    async def add_chat(self):
+        """Adds new user to Chat list container"""
+        # todo complete addition of chats when a successful response or request to add a chat is recived
+        pass
