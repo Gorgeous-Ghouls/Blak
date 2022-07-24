@@ -1,15 +1,14 @@
 [tool.poetry]
-name = "Name"
+name = "Blak"
 version = "0.1.0"
-description = ""
-authors = ["Author 1 <email@mail.com>"]
+description = "An uncompromising chat client made in python \nA chat client that has many features that help the user in getting a experience they never had before"
+authors = ["p0lygun <solankivibhakar82@mail.com>"]  # todo: all team members add themselves
 license = "MIT"
 
 [tool.poetry.dependencies]
 python = "3.10.*"
 Kivy = "^2.1.0"
 websockets = "^10.3"
-loguru = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 # Base tools
