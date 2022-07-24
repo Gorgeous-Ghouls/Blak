@@ -10,27 +10,33 @@ class ConnectionManager:
     """Class which manages the users connections to the server"""
 
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: Dict[str, WebSocket] = {}
 
-    async def connect(self, websocket: WebSocket, room_name: str) -> None:
+    async def connect(self, websocket: WebSocket, user_id: str) -> None:
         """Connects to the incoming client's connection request"""
         await websocket.accept()
-        self.active_connections.append(websocket)
+        self.active_connections[user_id] = websocket
 
-    async def disconnect(self, websocket: WebSocket, room_name: str) -> None:
+    async def disconnect(self, websocket: WebSocket) -> None:
         """Disconnects to the exisiting client's connection"""
-        self.active_connections.remove(websocket)
+        for user_id in self.active_connections:
+            if self.active_connections[user_id] == websocket:
+                del self.active_connections[user_id]
 
 
 class MessageManager:
     """Class which manages sending message to the correct user"""
 
-    def __init__(self, user_id: str):
-        self.user_id = user_id
+    def __init__(self):
+        self.message: Dict
 
-    async def send_message(self, message: str, other_user_id: str) -> None:
+    async def recieve_message(self, msg: json) -> None:
+        """Processes the recieved message, sends to user if online, else stores in the db"""
+        self.message = json.load(msg)
+
+    async def send_message(self, websocket: WebSocket) -> None:
         """Sends messge to the requested user"""
-        ...
+        await websocket.send_json(json.dumps(self.message))
 
 
 class DbManager:
