@@ -1,0 +1,34 @@
+#:import Colors app.utils.Colors
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+<TitleBar>:
+    size_hint: 1,None
+    height: dp(30)
+    pos_hint: {'top':1}
+
+    MDLabel:
+        size: self.texture_size
+        center_y: root.center_y
+        text: app.title
+        x:root.x + 10
+        halign: 'left'
+        theme_text_color: "Custom"
+        text_color: get_color_from_hex(Colors.text_medium.value)
+
+
+    MDBoxLayout:
+        draggable: False
+        adaptive_width: True
+        pos_hint: {'right': 1}
+        center_y: root.center_y
+        orientation: 'horizontal'
+        md_bg_color: root.button_bg
+        MDIconButton:
+            icon: "window-maximize"
+            icon_size: root.button_size
+        MDIconButton:
+            icon: "window-minimize"
+            icon_size: root.button_size
+        MDIconButton:
+            icon: "close"
+            icon_size: root.button_size
+MDFloatLayout:

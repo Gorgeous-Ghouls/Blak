@@ -3,7 +3,25 @@ from typing import Any
 
 import websockets
 from kivy import Logger
+from kivy.core.window import Window
+from kivy.lang.builder import Builder
+from kivy.modules import inspector
+from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
+from kivymd.uix.floatlayout import MDFloatLayout
+
+from ..utils import Colors, app_dir
+
+Window.borderless = True
+Window.custom_titlebar = True
+
+
+class TitleBar(MDFloatLayout):
+    """Custom TitleBar for the app"""
+
+    md_bg_color = get_color_from_hex(Colors.accent_bg.value)
+    button_bg = get_color_from_hex(Colors.primary_bg.value)
+    button_size = "10sp"
 
 
 class ClientUI(MDApp):
@@ -14,10 +32,24 @@ class ClientUI(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.ws_handler_task = None
+        self.title = "Blak"
 
     def build(self):
         """Main function that is called when window for Kivy is being generated add/load kv files here"""
-        pass
+        root: MDFloatLayout
+        root = Builder.load_file(str(app_dir / "lib/kv_files/client_ui.kv"))
+        root.md_bg_color = get_color_from_hex(Colors.primary_bg.value)
+        title_bar = TitleBar()
+        root.add_widget(title_bar)
+        if Window.set_custom_titlebar(title_bar):
+            Logger.info("Window: setting custom titlebar successful")
+        else:
+            Logger.info(
+                "Window: setting custom titlebar " "Not allowed on this system "
+            )
+        self.title = "Blak"
+        inspector.create_inspector(Window, root)
+        return root
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously
@@ -58,7 +90,7 @@ class ClientUI(MDApp):
                     self.ws = await websockets.connect("ws://localhost:8765")
                     await self.connection_established()
                     connection_closed = False
-                except OSError:
+                except (OSError, asyncio.exceptions.CancelledError):
                     await self.connection_lost()
                     await asyncio.sleep(5)  # try after 5 secs
                     pass

@@ -1,4 +1,5 @@
 import enum
+from pathlib import Path
 
 
 class Colors(enum.Enum):
@@ -9,3 +10,6 @@ class Colors(enum.Enum):
     text = "#000000"
     text_medium = "#DCD7C9"
     text_dark = "#A27B5C"
+
+
+app_dir = Path(__file__).parents[1]  # the app directory
