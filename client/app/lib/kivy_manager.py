@@ -148,5 +148,5 @@ class ClientUI(MDApp):
 
     async def add_chat(self):
         """Adds new user to Chat list container"""
-        # todo complete addition of chats when a successful response or request to add a chat is recived
+        # todo complete addition of chats when a successful response or request to add a chat is received
         pass
