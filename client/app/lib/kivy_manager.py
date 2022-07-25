@@ -58,10 +58,17 @@ class ClientUI(MDApp):
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
         self.ws_handler_task = None
+        self.root: MDBoxLayout
 
     def build(self):
         """Main function that is called when window for Kivy is being generated add/load kv files here"""
         root: MDBoxLayout
+
+        for file in (app_dir / "ui/kv_files").glob(
+            "*.kv"
+        ):  # Load all UI files before Loading root
+            Builder.load_file(str(file))
+
         root = Builder.load_file(str(app_dir / "lib/kv_files/client_ui.kv"))
         root.md_bg_color = get_color_from_hex(Colors.primary_bg.value)
         if Window.set_custom_titlebar(root.ids["titlebar"]):
