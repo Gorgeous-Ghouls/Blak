@@ -59,3 +59,33 @@ MDBoxLayout:
 
         ScreenManager:
             id: screen_manager
+            MDScreen:
+                id: chat_screen
+                name: 'chat'
+                MDBoxLayout:
+                    height: dp(50)
+                    pos_hint: {'bottom':1, 'center_x':0.5, 'center_y':0.5}
+                    bg_color: get_color_from_hex(Colors.accent_bg.value)
+                    MDTextField:
+                        id: chat_text_field
+                        hint_text: 'Enter your message'
+                        hint_text_font: 'Inria Sans'
+                        hint_text_color: get_color_from_hex(Colors.text_medium.value)
+                        width: root.width-dp(20)
+                        mode: 'fill'
+                        multiline: True
+                    MDFloatingActionButton:
+                        icon: "check"
+                        opposite_colors: True
+                        radius: dp(25)
+                        pos_hit: {'right': 1}
+                        on_press: root.send_message()
+                        elevation: 8
+                        md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                MDList:
+                    id: chat_list
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(5)
+                    md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                    # to add chat here use ChatItem class from UI
