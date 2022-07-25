@@ -36,20 +36,25 @@
             icon: "close"
             icon_size: root.button_size
             on_press: root.handle_buttons(self)
+
 MDBoxLayout:
     orientation: 'vertical'
     TitleBar:
         id: titlebar
+
     MDBoxLayout:
-        ScrollView:
-            do_scroll_x: False
+        MDFloatLayout: # needed so that we always have background color
+            md_bg_color: get_color_from_hex(Colors.accent_bg.value)
             size_hint_x: 0.4
-            MDGridLayout:
-                cols: 1
-                id: chat_list_container
-                size_hint: 1,None
-                height: self.minimum_height
-                md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+            ScrollView:
+                do_scroll_x: False
+                MDGridLayout:
+                    cols: 1
+                    id: chat_list_container
+                    size_hint: 1,None
+                    height: self.minimum_height
+                    md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                    # todo add chat list here
 
         ScreenManager:
             id: screen_manager
