@@ -21,7 +21,7 @@ class Colors(enum.Enum):
         if hasattr(Colors, color):
             return get_color_from_hex(getattr(Colors, color).value)
 
-    # todo
+    # todo make Colors class be kivy compatible by default
 
 
 app_dir = Path(__file__).parents[1]  # the app directory
