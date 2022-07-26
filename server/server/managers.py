@@ -1,41 +1,11 @@
+import asyncio
 import json
 import uuid
 from typing import Dict, List
 
 from fastapi import WebSocket
 
-
-class ConnectionManager:
-    """Class which manages the users connections to the server"""
-
-    def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
-
-    async def connect(self, websocket: WebSocket, user_id: str) -> None:
-        """Connects to the incoming client's connection request"""
-        await websocket.accept()
-        self.active_connections[user_id] = websocket
-
-    async def disconnect(self, websocket: WebSocket) -> None:
-        """Disconnects to the exisiting client's connection"""
-        for user_id in self.active_connections:
-            if self.active_connections[user_id] == websocket:
-                del self.active_connections[user_id]
-
-
-class MessageManager:
-    """Class which manages sending message to the correct user"""
-
-    def __init__(self):
-        self.message: Dict
-
-    async def recieve_message(self, msg: json) -> None:
-        """Processes the recieved message, sends to user if online, else stores in the db"""
-        self.message = json.load(msg)
-
-    async def send_message(self, websocket: WebSocket) -> None:
-        """Sends messge to the requested user"""
-        await websocket.send_json(json.dumps(self.message))
+import server.user as user
 
 
 class DbManager:
@@ -67,13 +37,13 @@ class DbManager:
                 selected_rooms.append(self.rooms[i])
         return selected_rooms
 
-    def create_room(self, sender_id: str, reciever_id: str) -> None:
+    def create_room(self, sender_id: str, reciever_id: str) -> str:
         """Creates a new room(only if the persons don't already have one)"""
         room_id = sender_id + reciever_id
         if ((sender_id + reciever_id) in self.rooms) or (
             (reciever_id + sender_id) in self.rooms
         ):
-            return {"error": "room already exists"}
+            return None
         self.rooms[room_id] = {
             "room_id": room_id,
             "users": [sender_id, reciever_id],
@@ -121,6 +91,35 @@ class DbManager:
         u = open(self.user_db_file, "w")
         json.dump(self.users, u)
         r = open(self.rooms_db_file, "w")
-        json.dump(self.rooms)
+        json.dump(self.rooms, r)
         u.close()
         r.close()
+
+
+class ConnectionManager:
+    """Class which manages the users connections to the server"""
+
+    def __init__(self, db: DbManager):
+        self.db = db
+        self.active_sessions = {}
+
+    async def create_session(self, websocket: WebSocket) -> None:
+        """Creates a client handler"""
+        session_id = str(uuid.uuid4())
+        temp_gen = user.User.create(session_id, websocket, self.db, self)
+        self.active_sessions[session_id] = await asyncio.create_task(anext(temp_gen))
+        await asyncio.create_task(anext(temp_gen))
+
+    def close_session(self, session_id: str) -> None:
+        """Destroys the exisiting client handler"""
+        self.active_sessions.pop(session_id, None)
+
+    def is_roomate_online(self, user_id: str, room_id: str) -> WebSocket:
+        """Checks for roomate is online"""
+        roomate_id = room_id.replace(user_id, "")
+        for obj in self.active_sessions.values():
+            if obj.logged_in:
+                if roomate_id == obj.user_id:
+                    return obj.websocket
+        else:
+            return None

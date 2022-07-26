@@ -1,12 +1,4 @@
 [[package]]
-name = "aiofiles"
-version = "0.8.0"
-description = "File support for asyncio."
-category = "main"
-optional = false
-python-versions = ">=3.6,<4.0"
-
-[[package]]
 name = "anyio"
 version = "3.6.1"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"

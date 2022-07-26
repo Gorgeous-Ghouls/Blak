@@ -3,6 +3,8 @@
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 
+from .managers import ConnectionManager, DbManager
+
 app = FastAPI()
 
 html = """
@@ -14,7 +16,7 @@ html = """
     <body>
         <h1>WebSocket Chat</h1>
         <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
+            <input type="text" cols="40" rows="5" id="messageText" autocomplete="off"/>
             <button>Send</button>
         </form>
         <ul id='messages'>
@@ -30,7 +32,7 @@ html = """
             };
             function sendMessage(event) {
                 var input = document.getElementById("messageText")
-                ws.send({"hello":input.value})
+                ws.send(input.value)
                 input.value = ''
                 event.preventDefault()
             }
@@ -38,6 +40,8 @@ html = """
     </body>
 </html>
 """
+db = DbManager("server/users.json", "server/rooms.json")
+connections = ConnectionManager(db)
 
 
 @app.get("/")
@@ -49,7 +53,10 @@ async def get():
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     """Websocket entrypoint"""
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
+    await connections.create_session(websocket)
+
+
+@app.on_event("shutdown")
+async def close_db():
+    """Closes the database"""
+    db.close()
