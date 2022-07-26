@@ -14,8 +14,8 @@ class Colors(enum.Enum):
     text_medium = "#DCD7C9"
     text_dark = "#A27B5C"
 
-    @deprecated(msg="This function will be removed in next minor version")
     @staticmethod
+    @deprecated(msg="This function will be removed in next minor version")
     def get_kivy_color(color: str) -> list[float]:
         """Returns kivy compatible colors"""
         if hasattr(Colors, color):
