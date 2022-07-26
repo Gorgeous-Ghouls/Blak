@@ -17,7 +17,7 @@ async def echo(websocket):
                 if message["username"] == "blak" and message["password"] == "blak":
                     reply.update(
                         {
-                            "type": message["type"] + ".received",
+                            "type": message["type"],
                             "data": True,
                             "user-id": str(uuid.uuid4()),
                         }
@@ -25,7 +25,7 @@ async def echo(websocket):
                 else:
                     reply.update(
                         {
-                            "type": message["type"] + ".received",
+                            "type": message["type"],
                             "data": False,
                             "user-id": None,
                         }

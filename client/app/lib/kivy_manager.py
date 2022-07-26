@@ -1,6 +1,7 @@
 import asyncio
 import json
 from typing import Any, TypedDict
+from uuid import UUID
 
 import kivymd.uix.button
 import websockets
@@ -8,7 +9,7 @@ from kivy import Logger
 from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.modules import inspector
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, StringProperty
 from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -26,9 +27,9 @@ class KivyIds(TypedDict):
     # todo ask can how can this be used to auto-complete dict keys
     titlebar: str
     chat_list_container: str
-    screen_manager: str
     main_box: str
     app_screen_manager: str
+    chats_screen_manager: str
     username: str
     password: str
 
@@ -70,6 +71,8 @@ class ClientUI(MDApp):
 
     ws: websockets.WebSocketClientProtocol = None
     login: bool = BooleanProperty(False)
+    user_id: UUID = None
+    login_helper_text: str = StringProperty()
 
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
@@ -150,9 +153,22 @@ class ClientUI(MDApp):
 
             await asyncio.sleep(0)
 
-    async def handle_recv_data(self, data: dict):
+    async def handle_recv_data(self, reply: str):
         """Handles data sent by server"""
-        print(data)  # todo complete data handling
+        # todo complete data handling
+        try:
+            reply = json.loads(reply)
+            Logger.info(f"hrd: {reply}")
+            match reply["type"]:
+                case "user.login":
+                    if reply["data"]:  # login Successful
+                        self.user_id = UUID(reply["user-id"])
+                        self.login = True
+                    else:
+                        self.login_helper_text = "Invalid Username or Password"
+
+        except json.JSONDecodeError:
+            Logger.warn(f"Wrong Json data {reply}")
 
     def send_data(self, instance: Any = None, value: str | int | dict = None) -> None:
         """Wrapper around  WebSocketClientProtocol.send so that kivy event bindings work normally.
@@ -171,7 +187,7 @@ class ClientUI(MDApp):
             try:
 
                 data = json.dumps(data)
-                Logger.info(data)
+                Logger.info(f"sdw: {data}")
             except json.JSONDecodeError:
                 Logger.warn(f"Wrong Data send {type(data)}")
 
