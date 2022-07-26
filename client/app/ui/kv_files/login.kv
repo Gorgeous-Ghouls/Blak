@@ -37,4 +37,5 @@
         MDRectangleFlatButton:
             pos_hint: {'center_x': 0.5,'center_y': 0.5}
             text: "Login"
+            disabled: app.login_data_sent
             on_release: app.do_login(username.text, password.text)

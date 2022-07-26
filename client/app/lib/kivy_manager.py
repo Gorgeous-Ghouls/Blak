@@ -73,10 +73,14 @@ class ClientUI(MDApp):
     login: bool = BooleanProperty(False)
     user_id: UUID = None
     login_helper_text: str = StringProperty()
+    login_data_sent: bool = BooleanProperty(
+        False
+    )  # very inefficient way to stop spamming
 
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
         self.ws_handler_task = None
+
         self.root: MDBoxLayout
 
     def build(self):
@@ -166,6 +170,7 @@ class ClientUI(MDApp):
                         self.login = True
                     else:
                         self.login_helper_text = "Invalid Username or Password"
+                        self.login_data_sent = False
 
         except json.JSONDecodeError:
             Logger.warn(f"Wrong Json data {reply}")
@@ -195,13 +200,13 @@ class ClientUI(MDApp):
 
     async def connection_lost(self):
         """Function called whenever connection with server is lost"""
-        pass
+        self.login_data_sent = True
         # todo enumerate things that are needed to be done when connection is lost
 
-    @staticmethod
-    async def connection_established():
+    async def connection_established(self):
         """Function called whenever connection with the server is established"""
         Logger.info("WS: Connected")
+        self.login_data_sent = False
         # todo enumerate things that are needed to be done when connection is established
 
     async def add_chat(self):
@@ -218,10 +223,12 @@ class ClientUI(MDApp):
 
     def do_login(self, username: str, password: str):
         """Login the user and set app.login accordingly"""
-        if len(username) and len(password):
+        if not self.login_data_sent and (len(username) and len(password)):
             data = {
                 "type": "user.login",
                 "username": username,
                 "password": password,
             }
+            if self.ws and self.ws.open:
+                self.login_data_sent = True
             self.send_data(value=data)
