@@ -1,3 +1,4 @@
+from kivy.uix.screenmanager import ScreenManager
 from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
 from kivymd.uix.button import BaseButton
@@ -30,9 +31,12 @@ class ChatItem(MDCard):
     def on_touch_up(self, touch):
         """Event Fired everytime mouse is released to tap is released."""
         if self.collide_point(*touch.pos):
-            MDApp.get_running_app().root.ids[
-                "screen_manager"
-            ].current = self.custom_id  # switch screen to the chat
+            screen_manager: ScreenManager
+            screen_manager = MDApp.get_running_app().root.ids["chats_screen_manager"]
+            if screen_manager.has_screen(self.custom_id):
+                screen_manager.current_screen = self.custom_id
+
+            # switch screen to the chat
 
 
 class TitleBar(MDFloatLayout):
@@ -44,7 +48,9 @@ class TitleBar(MDFloatLayout):
 
     def __init__(self, **kwargs):
         super(TitleBar, self).__init__(**kwargs)
-        self.app: MDApp = MDApp.get_running_app()
+        from ..lib.kivy_manager import ClientUI
+
+        self.app: ClientUI = MDApp.get_running_app()
 
     def handle_buttons(self, instance: BaseButton):
         """Callback Function for all buttons in titlebar

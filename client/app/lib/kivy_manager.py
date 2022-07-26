@@ -216,3 +216,13 @@ class ClientUI(MDApp):
             if self.ws and self.ws.open:
                 self.login_data_sent = True
             self.send_data(value=data)
+
+    def do_logout(self):
+        """Reset User info and go back to log in screen"""
+        self.user_name = ""
+        self.user_id = UUID(int=0)
+        self.login = False
+
+        # remove all chats and chat messages
+        self.root.ids["chat_list_container"].clear_widgets()
+        self.root.ids["chats_screen_manager"].clear_widgets()

@@ -30,6 +30,15 @@ MDBoxLayout:
                             spacing: dp(5)
                             md_bg_color: get_color_from_hex(Colors.accent_bg.value)
                             # to add chat here use ChatItem class from UI
+                    MDFlatButton:
+                        size_hint: 1, None
+                        pos_hint: {'center_x': 0.5}
+                        theme_text_color: "Custom"
+                        md_bg_color: Colors.get_kivy_color("primary_bg")
+                        text_color:  Colors.get_kivy_color("accent_bg_text")
+                        text: "Logout"
+                        on_release: app.do_logout()
+
 
                 ScreenManager:
                     id: chats_screen_manager
