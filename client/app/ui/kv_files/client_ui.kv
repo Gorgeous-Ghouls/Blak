@@ -66,3 +66,23 @@ MDBoxLayout:
 
                 ScreenManager:
                     id: chats_screen_manager
+                    MDScreen:
+                        id: chat_screen
+                        name: 'chat'
+                        MDBoxLayout:
+                            pos_hint: {'top': 1}
+                            MDTextField:
+                                id: chat_text_field
+                                hint_text: 'Enter your message'
+                                hint_text_font: 'Inria Sans'
+                                pos_hint: {"bottom": 0.8, "center_y": .37}
+                            MDFloatingActionButton:
+                                icon: "arrow-right"
+                                pos_hint: {"center_x": .5, "center_y": .12}
+                                md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                        MDList:
+                            id: chat_list
+                            size_hint_y: None
+                            height: self.minimum_height
+                            spacing: dp(5)
+                            md_bg_color: get_color_from_hex(Colors.accent_bg.value)
