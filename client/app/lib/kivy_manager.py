@@ -13,7 +13,7 @@ from kivy.properties import BooleanProperty, StringProperty
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 
-from ..utils import app_dir
+from ..utils import Colors, app_dir
 
 Window.borderless = True
 Window.custom_titlebar = True
@@ -43,6 +43,8 @@ class ClientUI(MDApp):
     login_data_sent: bool = BooleanProperty(
         False
     )  # very inefficient way to stop spamming
+
+    connection_status: str = StringProperty("Disconnected")
 
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
@@ -172,11 +174,22 @@ class ClientUI(MDApp):
     async def connection_lost(self):
         """Function called whenever connection with server is lost"""
         self.login_data_sent = True
+        self.connection_status = "Disconnected"
+        self.root.ids["titlebar"].ids["connection_status_label"].color = [
+            1,
+            0,
+            0,
+            1,
+        ]  # red
         # todo enumerate things that are needed to be done when connection is lost
 
     async def connection_established(self):
         """Function called whenever connection with the server is established"""
         Logger.info("WS: Connected")
+        self.connection_status = "Connected"
+        self.root.ids["titlebar"].ids[
+            "connection_status_label"
+        ].color = Colors.get_kivy_color("accent_bg_text")
         self.login_data_sent = False
         # todo enumerate things that are needed to be done when connection is established
 
