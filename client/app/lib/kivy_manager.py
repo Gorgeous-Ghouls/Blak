@@ -25,8 +25,8 @@ class TitleBar(MDFloatLayout):
     button_bg = get_color_from_hex(Colors.primary_bg.value)
     button_size = "15sp"
 
-    def __init__(self):
-        super(TitleBar, self).__init__()
+    def __init__(self, **kwargs):
+        super(TitleBar, self).__init__(**kwargs)
         self.app: MDApp = MDApp.get_running_app()
 
     def handle_buttons(self, instance: kivymd.uix.button.BaseButton):
@@ -58,21 +58,25 @@ class ClientUI(MDApp):
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
         self.ws_handler_task = None
+        self.root: MDBoxLayout
 
     def build(self):
         """Main function that is called when window for Kivy is being generated add/load kv files here"""
         root: MDBoxLayout
+
+        for file in (app_dir / "ui/kv_files").glob(
+            "*.kv"
+        ):  # Load all UI files before Loading root
+            Builder.load_file(str(file))
+
         root = Builder.load_file(str(app_dir / "lib/kv_files/client_ui.kv"))
         root.md_bg_color = get_color_from_hex(Colors.primary_bg.value)
-        title_bar = TitleBar()
-        root.add_widget(title_bar)
-        if Window.set_custom_titlebar(title_bar):
+        if Window.set_custom_titlebar(root.ids["titlebar"]):
             Logger.info("Window: setting custom titlebar successful")
         else:
             Logger.info(
                 "Window: setting custom titlebar " "Not allowed on this system "
             )
-        self.title = "Blak"
         inspector.create_inspector(Window, root)
         return root
 
@@ -148,3 +152,8 @@ class ClientUI(MDApp):
         """Function called whenever connection with the server is established"""
         Logger.info("WS: Connected")
         # todo enumerate things that are needed to be done when connection is established
+
+    async def add_chat(self):
+        """Adds new user to Chat list container"""
+        # todo complete addition of chats when a successful response or request to add a chat is received
+        pass
