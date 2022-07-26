@@ -42,20 +42,27 @@ MDBoxLayout:
     TitleBar:
         id: titlebar
 
-    MDBoxLayout:
-        MDFloatLayout: # needed so that we always have background color
-            md_bg_color: get_color_from_hex(Colors.accent_bg.value)
-            size_hint_x: 0.4
-            ScrollView:
-                do_scroll_x: False
-                MDGridLayout:
-                    cols: 1
-                    id: chat_list_container
-                    size_hint: 1,None
-                    height: self.minimum_height
-                    spacing: dp(5)
+    ScreenManager:
+        id: app_screen_manager
+        MDScreen:
+            name: "login"
+            LoginScreen:
+        MDScreen:
+            name: "app"
+            MDBoxLayout:
+                MDFloatLayout: # needed so that we always have background color
                     md_bg_color: get_color_from_hex(Colors.accent_bg.value)
-                    # to add chat here use ChatItem class from UI
+                    size_hint_x: 0.4
+                    ScrollView:
+                        do_scroll_x: False
+                        MDGridLayout:
+                            cols: 1
+                            id: chat_list_container
+                            size_hint: 1,None
+                            height: self.minimum_height
+                            spacing: dp(5)
+                            md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                            # to add chat here use ChatItem class from UI
 
-        ScreenManager:
-            id: screen_manager
+                ScreenManager:
+                    id: chats_screen_manager
