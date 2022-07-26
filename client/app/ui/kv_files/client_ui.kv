@@ -42,23 +42,26 @@ MDBoxLayout:
 
                 ScreenManager:
                     id: chats_screen_manager
-                    MDScreen:
-                        id: chat_screen
-                        name: 'chat'
-                        MDBoxLayout:
-                            pos_hint: {'top': 1}
-                            MDTextField:
-                                id: chat_text_field
-                                hint_text: 'Enter your message'
-                                hint_text_font: 'Inria Sans'
-                                pos_hint: {"bottom": 0.8, "center_y": .37}
-                            MDFloatingActionButton:
-                                icon: "arrow-right"
-                                pos_hint: {"center_x": .5, "center_y": .12}
-                                md_bg_color: get_color_from_hex(Colors.accent_bg.value)
-                        MDList:
-                            id: chat_list
-                            size_hint_y: None
+                    size_hint: 1,1
+                    MDScreen: # make this a class so this can be added dynamically see ChatItem class
+                        name: 'chat' # name should be equal to custom-id of the other user
+                        MDGridLayout:
+                            cols:1
                             height: self.minimum_height
-                            spacing: dp(5)
-                            md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                            ScrollView:
+                                MDList: # messages come above the input field not below
+                                    id: chat_list
+                                    spacing: "30dp"
+#                                    OneLineListItem:   # uncomment for testing 😀
+#                                        text: "Single-line item"
+                            MDGridLayout:
+                                #:set padding "10dp"  # you can set variable in kvlang
+                                padding: padding, 0, padding, padding # left top right, bottom
+                                adaptive_height: True
+                                rows: 1
+                                MDTextField:
+                                    hint_text: 'Enter your message'
+                                    hint_text_font: 'Inria Sans'
+                                MDFloatingActionButton:
+                                    icon: "arrow-right"
+                                    md_bg_color: get_color_from_hex(Colors.accent_bg.value)
