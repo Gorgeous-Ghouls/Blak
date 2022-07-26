@@ -1,3 +1,4 @@
+from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager
 from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
@@ -51,6 +52,11 @@ class TitleBar(MDFloatLayout):
         from ..lib.kivy_manager import ClientUI
 
         self.app: ClientUI = MDApp.get_running_app()
+
+    @staticmethod
+    def fix_layout():
+        """Hotfix to make sure titlebar is shown correctly on win and mac"""
+        Window.size = Window.size[0], Window.size[1] + 1
 
     def handle_buttons(self, instance: BaseButton):
         """Callback Function for all buttons in titlebar

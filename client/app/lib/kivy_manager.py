@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sys
 from typing import Any, TypedDict
 from uuid import UUID
 
@@ -78,8 +79,9 @@ class ClientUI(MDApp):
 
     def on_start(self):
         """Called just before the app window is shown"""
+        self.root.ids["titlebar"]: ui.TitleBar
         Clock.schedule_once(
-            lambda dt: self.root._trigger_layout()
+            lambda dt: self.root.ids["titlebar"].fix_layout()
         )  # needed to make sure custom titlebar renders properly on windows and mac
         self.root.ids["app_screen_manager"].current = "app"
 
@@ -178,15 +180,18 @@ class ClientUI(MDApp):
 
     async def connection_lost(self):
         """Function called whenever connection with server is lost"""
-        self.login_data_sent = True
-        self.connection_status = "Disconnected"
-        self.root.ids["titlebar"].ids["connection_status_label"].color = [
-            1,
-            0,
-            0,
-            1,
-        ]  # red
-        # todo enumerate things that are needed to be done when connection is lost
+        try:
+            self.login_data_sent = True
+            self.connection_status = "Disconnected"
+            self.root.ids["titlebar"].ids["connection_status_label"].color = [
+                1,
+                0,
+                0,
+                1,
+            ]  # red
+            # todo enumerate things that are needed to be done when connection is lost
+        except AttributeError:  # when ws_handler_task exits after run_wrapper is finished
+            sys.exit(0)
 
     async def connection_established(self):
         """Function called whenever connection with the server is established"""
