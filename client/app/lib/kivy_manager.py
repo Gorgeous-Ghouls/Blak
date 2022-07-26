@@ -3,17 +3,15 @@ import json
 from typing import Any, TypedDict
 from uuid import UUID
 
-import kivymd.uix.button
 import websockets
+from app import ui
 from kivy import Logger
 from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.modules import inspector
 from kivy.properties import BooleanProperty, StringProperty
-from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.floatlayout import MDFloatLayout
 
 from ..utils import Colors, app_dir
 
@@ -34,38 +32,6 @@ class KivyIds(TypedDict):
     password: str
 
 
-class TitleBar(MDFloatLayout):
-    """Custom TitleBar for the app"""
-
-    md_bg_color = get_color_from_hex(Colors.accent_bg.value)
-    button_bg = get_color_from_hex(Colors.primary_bg.value)
-    button_size = "15sp"
-
-    def __init__(self, **kwargs):
-        super(TitleBar, self).__init__(**kwargs)
-        self.app: MDApp = MDApp.get_running_app()
-
-    def handle_buttons(self, instance: kivymd.uix.button.BaseButton):
-        """Callback Function for all buttons in titlebar
-
-        :param instance a button object that is a subclass of kivymd.uix.button.BaseButton
-
-        A button object was chosen instead of say a string, so that later on the caller itself can be edited
-        """
-        match_string = None
-        if hasattr(instance, "icon"):
-            match_string = instance.icon
-
-        if match_string:
-            match match_string:
-                case "close":
-                    self.app.stop()
-                case "window-minimize":
-                    self.app.root_window.minimize()
-                case "window-maximize":
-                    self.app.root_window.maximize()
-
-
 class ClientUI(MDApp):
     """Main Class to Build frontend on."""
 
@@ -77,6 +43,8 @@ class ClientUI(MDApp):
     login_data_sent: bool = BooleanProperty(
         False
     )  # very inefficient way to stop spamming
+
+    connection_status: str = StringProperty("Disconnected")
 
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
@@ -96,7 +64,7 @@ class ClientUI(MDApp):
             Builder.load_file(str(file))
         # load root explicitly
         root = Builder.load_file(str(app_dir / "ui/kv_files/client_ui.kv"))
-        root.md_bg_color = get_color_from_hex(Colors.primary_bg.value)
+        root.ids["titlebar"]: ui.TitleBar
         if Window.set_custom_titlebar(root.ids["titlebar"]):
             Logger.info("Window: setting custom titlebar successful")
         else:
@@ -206,11 +174,22 @@ class ClientUI(MDApp):
     async def connection_lost(self):
         """Function called whenever connection with server is lost"""
         self.login_data_sent = True
+        self.connection_status = "Disconnected"
+        self.root.ids["titlebar"].ids["connection_status_label"].color = [
+            1,
+            0,
+            0,
+            1,
+        ]  # red
         # todo enumerate things that are needed to be done when connection is lost
 
     async def connection_established(self):
         """Function called whenever connection with the server is established"""
         Logger.info("WS: Connected")
+        self.connection_status = "Connected"
+        self.root.ids["titlebar"].ids[
+            "connection_status_label"
+        ].color = Colors.get_kivy_color("accent_bg_text")
         self.login_data_sent = False
         # todo enumerate things that are needed to be done when connection is established
 
@@ -237,3 +216,13 @@ class ClientUI(MDApp):
             if self.ws and self.ws.open:
                 self.login_data_sent = True
             self.send_data(value=data)
+
+    def do_logout(self):
+        """Reset User info and go back to log in screen"""
+        self.user_name = ""
+        self.user_id = UUID(int=0)
+        self.login = False
+
+        # remove all chats and chat messages
+        self.root.ids["chat_list_container"].clear_widgets()
+        self.root.ids["chats_screen_manager"].clear_widgets()
