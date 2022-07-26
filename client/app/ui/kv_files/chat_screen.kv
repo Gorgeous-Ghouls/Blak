@@ -1,0 +1,39 @@
+#:kivy 2.1.0
+
+#:import Colors app.utils.Colors
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+<ChatScreen>:
+    name: 'chat' # name should be equal to custom-id of the other user
+    MDGridLayout:
+        cols:1
+        height: self.minimum_height
+        ScrollView:
+            MDList:
+                id: chat_list
+                spacing: "30dp"
+                OneLineListItem:   # uncomment for testing 😀
+                    text: "Single-line"
+        MDGridLayout:
+            #:set padding "10dp"  # you can set variable in kvlang
+            padding: padding, 0, padding, padding
+            adaptive_height: True
+            rows: 1
+            MDTextField:
+                id : chat_input
+                hint_text: 'Enter your message'
+                hint_text_font: 'Inria Sans'
+                multiline: True
+                canvas.before:
+                    Color:
+                        rgba: 0.5, 0.5, 0.5, 0.5
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    Color:
+                        rgba:
+                            self.foreground_color if self.text \
+                            else (0.5, 0.5, 0.5, 0.5)
+            MDFloatingActionButton:
+                icon: "arrow-right"
+                md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                on_release: self.send_message(chat_input.text.strip())
