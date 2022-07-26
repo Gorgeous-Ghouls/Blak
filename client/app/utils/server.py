@@ -18,6 +18,7 @@ async def echo(websocket):
                     reply.update(
                         {
                             "type": message["type"],
+                            "username": message["username"],
                             "data": True,
                             "user-id": str(uuid.uuid4()),
                         }

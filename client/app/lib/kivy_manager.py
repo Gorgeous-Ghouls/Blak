@@ -71,6 +71,7 @@ class ClientUI(MDApp):
 
     ws: websockets.WebSocketClientProtocol = None
     login: bool = BooleanProperty(False)
+    user_name: str = StringProperty()
     user_id: UUID = None
     login_helper_text: str = StringProperty()
     login_data_sent: bool = BooleanProperty(
@@ -152,7 +153,9 @@ class ClientUI(MDApp):
                     connection_closed = False
                 except (OSError, asyncio.exceptions.CancelledError):
                     await self.connection_lost()
-                    await asyncio.sleep(5)  # try after 5 secs
+                    await asyncio.sleep(
+                        5
+                    )  # try after 5 secs todo implement a timeout algo
                     pass
 
             await asyncio.sleep(0)
@@ -167,9 +170,11 @@ class ClientUI(MDApp):
                 case "user.login":
                     if reply["data"]:  # login Successful
                         self.user_id = UUID(reply["user-id"])
+                        self.user_name = reply["username"]
                         self.login = True
                     else:
                         self.login_helper_text = "Invalid Username or Password"
+                        # todo clear username and password fields
                         self.login_data_sent = False
 
         except json.JSONDecodeError:
