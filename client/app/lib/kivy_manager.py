@@ -6,6 +6,7 @@ from uuid import UUID
 import websockets
 from app import ui
 from kivy import Logger
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.modules import inspector
@@ -35,6 +36,7 @@ class KivyIds(TypedDict):
 class ClientUI(MDApp):
     """Main Class to Build frontend on."""
 
+    root: MDBoxLayout
     ws: websockets.WebSocketClientProtocol = None
     login: bool = BooleanProperty(False)
     user_name: str = StringProperty()
@@ -76,7 +78,10 @@ class ClientUI(MDApp):
 
     def on_start(self):
         """Called just before the app window is shown"""
-        self.root.ids["app_screen_manager"].current = "login"
+        Clock.schedule_once(
+            lambda dt: self.root._trigger_layout()
+        )  # needed to make sure custom titlebar renders properly on windows and mac
+        self.root.ids["app_screen_manager"].current = "app"
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously
