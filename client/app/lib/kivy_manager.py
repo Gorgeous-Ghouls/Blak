@@ -1,15 +1,18 @@
 import asyncio
 import json
+import sys
 from typing import Any, TypedDict
 from uuid import UUID
 
 import websockets
 from app import ui
 from kivy import Logger
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.modules import inspector
 from kivy.properties import BooleanProperty, StringProperty
+from kivy.utils import platform
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 
@@ -35,6 +38,7 @@ class KivyIds(TypedDict):
 class ClientUI(MDApp):
     """Main Class to Build frontend on."""
 
+    root: MDBoxLayout
     ws: websockets.WebSocketClientProtocol = None
     login: bool = BooleanProperty(False)
     user_name: str = StringProperty()
@@ -49,7 +53,6 @@ class ClientUI(MDApp):
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
         self.ws_handler_task = None
-
         self.root: MDBoxLayout
 
     def build(self):
@@ -65,18 +68,28 @@ class ClientUI(MDApp):
         # load root explicitly
         root = Builder.load_file(str(app_dir / "ui/kv_files/client_ui.kv"))
         root.ids["titlebar"]: ui.TitleBar
-        if Window.set_custom_titlebar(root.ids["titlebar"]):
-            Logger.info("Window: setting custom titlebar successful")
+        if platform in ["win", "linux"]:  # only set title bar on Windows and linux
+            if Window.set_custom_titlebar(root.ids["titlebar"]):
+                Logger.info("Window: setting custom titlebar successful")
+            else:
+                Logger.info(
+                    "Window: setting custom titlebar " "Not allowed on this system "
+                )
         else:
-            Logger.info(
-                "Window: setting custom titlebar " "Not allowed on this system "
-            )
+            root.remove_widget(root.ids["titlebar"])
+            Window.borderless = False
+            Window.custom_titlebar = False
         inspector.create_inspector(Window, root)
         return root
 
     def on_start(self):
         """Called just before the app window is shown"""
-        self.root.ids["app_screen_manager"].current = "login"
+        if Window.custom_titlebar:
+            self.root.ids["titlebar"]: ui.TitleBar
+            Clock.schedule_once(
+                lambda dt: self.root.ids["titlebar"].fix_layout()
+            )  # needed to make sure custom titlebar renders properly on Windows
+        self.root.ids["app_screen_manager"].current = "app"
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously
@@ -84,7 +97,7 @@ class ClientUI(MDApp):
         run_wrapper starts kivy app and waits for it to finish
         ws_handler_task handles receiving of data from server
         """
-        self.ws_handler_task = asyncio.ensure_future(self.ws_handler())
+        self.ws_handler_task = asyncio.create_task(self.ws_handler())
 
         async def run_wrapper():
             """Function to start kivy"""
@@ -173,23 +186,32 @@ class ClientUI(MDApp):
 
     async def connection_lost(self):
         """Function called whenever connection with server is lost"""
-        self.login_data_sent = True
-        self.connection_status = "Disconnected"
-        self.root.ids["titlebar"].ids["connection_status_label"].color = [
-            1,
-            0,
-            0,
-            1,
-        ]  # red
-        # todo enumerate things that are needed to be done when connection is lost
+        try:
+            self.login_data_sent = True
+            self.connection_status = "Disconnected"
+            if Window.custom_titlebar:
+                self.root.ids["titlebar"].ids["connection_status_label"].color = [
+                    1,
+                    0,
+                    0,
+                    1,
+                ]  # red
+            else:
+                self.set_window_title()
+            # todo enumerate things that are needed to be done when connection is lost
+        except AttributeError:  # when ws_handler_task exits after run_wrapper is finished
+            sys.exit(0)
 
     async def connection_established(self):
         """Function called whenever connection with the server is established"""
         Logger.info("WS: Connected")
         self.connection_status = "Connected"
-        self.root.ids["titlebar"].ids[
-            "connection_status_label"
-        ].color = Colors.get_kivy_color("accent_bg_text")
+        if Window.custom_titlebar:
+            self.root.ids["titlebar"].ids[
+                "connection_status_label"
+            ].color = Colors.get_kivy_color("accent_bg_text")
+        else:
+            self.set_window_title()
         self.login_data_sent = False
         # todo enumerate things that are needed to be done when connection is established
 
@@ -226,3 +248,8 @@ class ClientUI(MDApp):
         # remove all chats and chat messages
         self.root.ids["chat_list_container"].clear_widgets()
         self.root.ids["chats_screen_manager"].clear_widgets()
+
+    def set_window_title(self):
+        """Sets window title when custom_titlebar is not used"""
+        if not Window.custom_titlebar:
+            self.title += f" - {self.connection_status}"
