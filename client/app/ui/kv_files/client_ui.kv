@@ -1,0 +1,50 @@
+#:kivy 2.1.0
+
+#:import Colors app.utils.Colors
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+MDBoxLayout:
+    orientation: 'vertical'
+    md_bg_color: get_color_from_hex(Colors.primary_bg.value)
+    TitleBar:
+        id: titlebar
+
+    ScreenManager:
+        id: app_screen_manager
+        MDScreen:
+            name: "login"
+            # reset fields
+            on_pre_enter: login_screen.ids.username.text,login_screen.ids.password.text = "",""
+            on_leave: login_screen.ids.username.text,login_screen.ids.password.text = "",""
+
+            LoginScreen:
+                id: login_screen
+
+        MDScreen:
+            name: "app"
+            MDBoxLayout:
+                MDFloatLayout: # needed so that we always have background color
+                    md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                    size_hint_x: 0.4
+                    ScrollView:
+                        do_scroll_x: False
+                        MDGridLayout:
+                            cols: 1
+                            id: chat_list_container
+                            size_hint: 1,None
+                            height: self.minimum_height
+                            spacing: dp(5)
+                            md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                            # to add chat here use ChatItem class from UI
+                    MDFlatButton:
+                        size_hint: 1, None
+                        pos_hint: {'center_x': 0.5}
+                        theme_text_color: "Custom"
+                        md_bg_color: Colors.get_kivy_color("primary_bg")
+                        text_color:  Colors.get_kivy_color("accent_bg_text")
+                        text: "Logout"
+                        on_release: app.do_logout()
+
+
+                ScreenManager:
+                    id: chats_screen_manager

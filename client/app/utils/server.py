@@ -1,17 +1,38 @@
 """This is dummy server that is used when developing New API for client."""
 
 import asyncio
-import random
+import json
+import uuid
 
 import websockets
-from kivy import Logger
 
 
 async def echo(websocket):
     """Send Random message back."""
     async for message in websocket:
-        Logger.debug(f"DummyServer: Received {message}")
-        await websocket.send(str(random.random()))
+        message = json.loads(message)
+        reply = dict()
+        match message["type"]:
+            case "user.login":
+                if message["username"] == "blak" and message["password"] == "blak":
+                    reply.update(
+                        {
+                            "type": message["type"],
+                            "username": message["username"],
+                            "data": True,
+                            "user-id": str(uuid.uuid4()),
+                        }
+                    )
+                else:
+                    reply.update(
+                        {
+                            "type": message["type"],
+                            "data": False,
+                            "user-id": None,
+                        }
+                    )
+
+        await websocket.send(json.dumps(reply))
 
 
 async def main():

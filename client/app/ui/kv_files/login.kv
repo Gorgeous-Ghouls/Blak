@@ -1,0 +1,41 @@
+#:import Colors app.utils.Colors
+<LoginField@MDTextField>:
+    helper_text_mode: "on_focus"
+    text_color_normal: Colors.get_kivy_color("text_dark")
+    text_color_focus: Colors.get_kivy_color("text_medium")
+    hint_text_color_normal: Colors.get_kivy_color("primary_bg")
+    hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
+    line_color_focus: Colors.get_kivy_color("text_dark")
+
+<LoginScreen@MDFloatLayout>:
+    size_hint: 1,1
+    MDBoxLayout:
+        orientation: "vertical"
+        adaptive_height: True
+        size_hint_x: 0.2
+        padding: "10dp", 0, "10dp", "5dp"
+        pos_hint: {'center_x': 0.5,'center_y': 0.5}
+        spacing: "10dp"
+        radius: 10
+        md_bg_color: Colors.get_kivy_color("accent_bg")
+
+        LoginField:
+            id: username
+            hint_text: "Username"
+            required: True
+        LoginField:
+            id: password
+            hint_text: "Password"
+            password: True
+            required: True
+        MDLabel:
+            id: login_helper_text
+            text: app.login_helper_text
+            font_size: "12dp"
+            valign: 'center'
+            color: [1,0,0,1]
+        MDRectangleFlatButton:
+            pos_hint: {'center_x': 0.5,'center_y': 0.5}
+            text: "Login"
+            disabled: app.login_data_sent
+            on_release: app.do_login(username.text, password.text)
