@@ -1,16 +1,20 @@
 [tool.poetry]
-name = "Blak-server"
+name = "blak"
 version = "0.1.0"
 description = "Server for Blak chat client"
 authors = ["p0lygun <solankivibhakar82@mail.com>"]  # todo: all team members add themselves
 license = "MIT"
+packages= [
+    {include = "server"}
+]
 
 [tool.poetry.dependencies]
 python = "3.10.*"
 fastapi = "^0.79.0"
 uvicorn = "^0.18.2"
 websockets = "^10.3"
-aiofiles = "^0.8.0"
+loguru = "^0.6.0"
+python-dotenv = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
 # Base tools
@@ -26,3 +30,6 @@ black = "^22.6.0"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+"blak-server" = "server.__main__:main"
