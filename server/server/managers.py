@@ -36,16 +36,16 @@ class DbManager:
                 selected_rooms.append(self.rooms[i])
         return selected_rooms
 
-    def create_room(self, sender_id: str, reciever_id: str) -> str:
+    def create_room(self, sender_id: str, receiver_id: str) -> str:
         """Creates a new room(only if the persons don't already have one)"""
-        room_id = sender_id + reciever_id
-        if ((sender_id + reciever_id) in self.rooms) or (
-            (reciever_id + sender_id) in self.rooms
+        room_id = sender_id + receiver_id
+        if ((sender_id + receiver_id) in self.rooms) or (
+            (receiver_id + sender_id) in self.rooms
         ):
             return None
         self.rooms[room_id] = {
             "room_id": room_id,
-            "users": [sender_id, reciever_id],
+            "users": [sender_id, receiver_id],
             "messages": [],
         }
         return room_id
