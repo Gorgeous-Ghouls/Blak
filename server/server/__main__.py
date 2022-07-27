@@ -13,7 +13,7 @@ def ensure_files():
 def main():
     """Main run entrypoint for backend"""
     ensure_files()
-    uvicorn.run("server.app:app", port=8000, log_level="info")
+    uvicorn.run("server.app:app", port=8000, log_level="debug")
 
 
 if __name__ == "__main__":

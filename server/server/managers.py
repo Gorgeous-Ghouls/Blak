@@ -4,6 +4,7 @@ import uuid
 from typing import Dict, List
 
 from fastapi import WebSocket
+from loguru import logger
 
 
 class DbManager:
@@ -48,7 +49,7 @@ class DbManager:
                 selected_rooms.append(self.rooms[i])
         return selected_rooms
 
-    def create_room(self, sender_id: str, receiver_id: str) -> str:
+    def create_room(self, sender_id: str, receiver_id: str) -> str | None:
         """Creates a new room(only if the persons don't already have one)"""
         room_id = sender_id + receiver_id
         if ((sender_id + receiver_id) in self.rooms) or (
@@ -117,14 +118,17 @@ class ConnectionManager:
         session_id = str(uuid.uuid4())
         temp_gen = User.create(session_id, websocket, self.db, self)
         self.active_sessions[session_id] = await asyncio.create_task(anext(temp_gen))
-        await asyncio.create_task(anext(temp_gen))
+        try:
+            await asyncio.create_task(anext(temp_gen))
+        except StopAsyncIteration:
+            logger.debug("Session ended")
 
     def close_session(self, session_id: str) -> None:
-        """Destroys the exisiting client handler"""
+        """Destroys the existing client handler"""
         self.active_sessions.pop(session_id, None)
 
     def is_user_online(self, user_id: str) -> WebSocket | None:
-        """Checks for roomate is online"""
+        """Checks for roommate is online"""
         for obj in self.active_sessions.values():
             if obj.logged_in:
                 if user_id == obj.user_id:

@@ -2,13 +2,14 @@ import json
 from functools import wraps
 
 from fastapi import WebSocket, WebSocketDisconnect
-from fastapi.logger import logger
+from loguru import logger
+from starlette.websockets import WebSocketState
 
 from . import managers
 
 
 def websocket_connection(method):
-    """Wrapper for detecting and handeling websocket closing"""
+    """Wrapper for detecting and handling websocket closing"""
 
     @wraps(method)
     async def _impl(self, *method_args, **method_kwargs):
@@ -17,7 +18,7 @@ def websocket_connection(method):
             return method_output
         except WebSocketDisconnect:
             try:
-                await self.websocket.close()
+                logger.debug(f"Closing Connection {self.session_id}")
                 self.close = True
                 self.connections.close_session(self.session_id)
             except Exception as e:
@@ -34,6 +35,7 @@ class User(object):
     db: managers.DbManager
     connections: managers.ConnectionManager
     logged_in: bool
+    session_id: str
 
     @classmethod
     async def create(
@@ -42,7 +44,7 @@ class User(object):
         websocket: WebSocket,
         db: managers.DbManager,
         connections: managers.ConnectionManager,
-    ) -> str:
+    ):
         """Asynchronous __init__ of User class"""
         self = User()
         self.session_id = session_id
@@ -53,14 +55,14 @@ class User(object):
         self.db = db
         self.close = False
         yield self
+        self.user_id = None
         self.user_id = await self.wait_for_auth()
         await self.handle_user(self.user_id)
 
     @websocket_connection
     async def wait_for_auth(self) -> str:
         """Authenticates(login or register) incoming connections from a user"""
-        retry = True
-        while retry or not self.close:
+        while not self.logged_in and not self.close:
             try:
                 request = await self.websocket.receive_json()
                 user_data = {}
@@ -78,7 +80,6 @@ class User(object):
                                     {"type": "user.login.success", "data": user_data}
                                 )
                                 self.logged_in = True
-                                retry = False
                                 return user_data["user_id"]
                     else:
                         await self.websocket.send_json(
@@ -88,7 +89,6 @@ class User(object):
                                 "message": "Username or Password is wrong",
                             }
                         )
-                        continue
                 elif request["type"] == "user.register":
                     user_id = self.db.create_user(
                         request["username"], request["password"]
@@ -102,43 +102,46 @@ class User(object):
                         }
                     )
             except json.JSONDecodeError:
-                logger.warn("wrong json sent")
+                logger.debug("wrong json sent")
 
     @websocket_connection
     async def handle_user(self, user_id):
-        """Handles requests from a logged in user"""
+        """Handles requests from a logged-in user"""
         while not self.close:
             try:
-                request = await self.websocket.receive_json()
-                if request["type"] == "msg.send":
-                    roomate_websocket = self.connections.is_user_online(
-                        request["other_id"]
-                    )
-                    message_id = self.db.create_message(
-                        user_id,
-                        request["data"],
-                        request["timestamp"],
-                        request["room_id"],
-                    )
-                    if roomate_websocket:
-                        await roomate_websocket.send_json(
-                            {
-                                "type": "msg.recv",
-                                "message_id": message_id,
-                                "user_id": user_id,
-                                "data": request["data"],
-                                "room_id": request["room_id"],
-                                "timestamp": request["timestamp"],
-                            }
+                if self.websocket.client_state == WebSocketState.CONNECTED:
+                    request = await self.websocket.receive_json()
+                    if request["type"] == "msg.send":
+                        roommate_websocket = self.connections.is_user_online(
+                            request["other_id"]
                         )
-                    await self.websocket.send_json(
-                        {"type": "msg.sent", "message_id": message_id}
-                    )
-                elif request["type"] == "room.create":
-                    room_id = self.db.create_room(request["user_id"], request["data"])
-                    await self.websocket.send_json(
-                        {"type": "room.create.success", "room_id": room_id}
-                    )
-                    self.db.save()
+                        message_id = self.db.create_message(
+                            user_id,
+                            request["data"],
+                            request["timestamp"],
+                            request["room_id"],
+                        )
+                        if roommate_websocket:
+                            await roommate_websocket.send_json(
+                                {
+                                    "type": "msg.recv",
+                                    "message_id": message_id,
+                                    "user_id": user_id,
+                                    "data": request["data"],
+                                    "room_id": request["room_id"],
+                                    "timestamp": request["timestamp"],
+                                }
+                            )
+                        await self.websocket.send_json(
+                            {"type": "msg.sent", "message_id": message_id}
+                        )
+                    elif request["type"] == "room.create":
+                        room_id = self.db.create_room(
+                            request["user_id"], request["data"]
+                        )
+                        await self.websocket.send_json(
+                            {"type": "room.create.success", "room_id": room_id}
+                        )
+                        self.db.save()
             except json.JSONDecodeError:
-                logger.warn(f"Wrong json data sent by {user_id}")
+                logger.debug(f"Wrong json data sent by {user_id}")
