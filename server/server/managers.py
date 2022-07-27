@@ -114,7 +114,7 @@ class ConnectionManager:
         """Destroys the exisiting client handler"""
         self.active_sessions.pop(session_id, None)
 
-    def is_roomate_online(self, user_id: str, room_id: str) -> WebSocket:
+    def is_roomate_online(self, user_id: str, room_id: str) -> WebSocket | None:
         """Checks for roomate is online"""
         roomate_id = room_id.replace(user_id, "")
         for obj in self.active_sessions.values():
