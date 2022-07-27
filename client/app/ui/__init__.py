@@ -74,11 +74,11 @@ class TitleBar(MDFloatLayout):
                     self.app.root_window.maximize()
 
 
-class ChatScreen(MDScreen):
+class ChatMessagesScreen(MDScreen):
     """Class representing a chat screen."""
 
     def __init__(self, **kwargs):
-        super(ChatScreen, self).__init__(**kwargs)
+        super(ChatMessagesScreen, self).__init__(**kwargs)
         from ..lib.kivy_manager import ClientUI
 
         self.app: ClientUI = MDApp.get_running_app()
