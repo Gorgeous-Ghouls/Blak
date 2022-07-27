@@ -20,20 +20,23 @@
             rows: 1
             MDTextField:
                 id : chat_input
-                hint_text: 'Enter your message'
+
+                helper_text: 'Enter your message'
+                helper_text_mode: "persistent"
                 hint_text_font: 'Inria Sans'
-                multiline: True
-                canvas.before:
-                    Color:
-                        rgba: 0.5, 0.5, 0.5, 0.5
-                    Rectangle:
-                        pos: self.pos
-                        size: self.size
-                    Color:
-                        rgba:
-                            self.foreground_color if self.text \
-                            else (0.5, 0.5, 0.5, 0.5)
-            MDFloatingActionButton:
-                icon: "arrow-right"
-                md_bg_color: get_color_from_hex(Colors.accent_bg.value)
-                on_release: self.send_message(chat_input.text.strip())
+                radius: [10, 10, 0, 0 ]
+                fill_color: Colors.get_kivy_color("accent_bg")
+                multiline: False
+
+                text_color_normal: Colors.get_kivy_color("text_dark")
+                text_color_focus: Colors.get_kivy_color("text_medium")
+                hint_text_color_normal: Colors.get_kivy_color("primary_bg")
+                hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
+                line_color_focus: Colors.get_kivy_color("text_dark")
+                on_text_validate: root.send_message(chat_input.text)
+
+            MDIconButton:
+                icon: "send"
+                theme_icon_color: "Custom"
+                icon_color: Colors.get_kivy_color("text_dark")
+                on_release: root.send_message(chat_input.text)

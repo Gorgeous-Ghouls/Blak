@@ -88,7 +88,8 @@ class ChatMessagesScreen(MDScreen):
         from ..lib.kivy_manager import ClientUI
 
         self.app: ClientUI = MDApp.get_running_app()
+        self.times_validated = 0
 
-    def send_message(self):
+    def send_message(self, message: str):
         """Send message to server."""
-        pass
+        pass  # todo actually send message
