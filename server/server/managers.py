@@ -5,8 +5,6 @@ from typing import Dict, List
 
 from fastapi import WebSocket
 
-import server.user as user
-
 
 class DbManager:
     """Manages the Database operations"""
@@ -103,8 +101,10 @@ class ConnectionManager:
 
     async def create_session(self, websocket: WebSocket) -> None:
         """Creates a client handler"""
+        from .user import User
+
         session_id = str(uuid.uuid4())
-        temp_gen = user.User.create(session_id, websocket, self.db, self)
+        temp_gen = User.create(session_id, websocket, self.db, self)
         self.active_sessions[session_id] = await asyncio.create_task(anext(temp_gen))
         await asyncio.create_task(anext(temp_gen))
 

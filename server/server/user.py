@@ -1,12 +1,8 @@
-from __future__ import annotations
-
 from functools import wraps
-from typing import TYPE_CHECKING
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-if TYPE_CHECKING:
-    import server.managers as managers
+from . import managers
 
 
 def websocket_connection(method):
