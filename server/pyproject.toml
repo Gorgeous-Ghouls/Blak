@@ -13,7 +13,6 @@ python = "3.10.*"
 fastapi = "^0.79.0"
 uvicorn = "^0.18.2"
 websockets = "^10.3"
-aiofiles = "^0.8.0"
 
 [tool.poetry.dev-dependencies]
 # Base tools

@@ -101,9 +101,7 @@ class User(object):
         while not self.close:
             request = await self.websocket.receive_json()
             if request["type"] == "msg.send":
-                roomate_websocket = self.connections.is_roomate_online(
-                    request["user_id"], request["room_id"]
-                )
+                roomate_websocket = self.connections.is_user_online(request["other_id"])
                 message_id = self.db.create_message(
                     user_id, request["data"], request["timestamp"], request["room_id"]
                 )
@@ -126,3 +124,4 @@ class User(object):
                 await self.websocket.send_json(
                     {"type": "room.create.success", "room_id": room_id}
                 )
+                self.db.save()

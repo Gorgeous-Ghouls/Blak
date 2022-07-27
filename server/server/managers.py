@@ -14,13 +14,14 @@ class DbManager:
     def __init__(self, user_db_file: str, rooms_db_file: str):
         self.user_db_file = user_db_file
         self.rooms_db_file = rooms_db_file
-        u = open(user_db_file)
-        r = open(rooms_db_file)
-        self.users = json.loads(u.read())
-        self.rooms = json.loads(r.read())
-        u.close()
-        r.close()
-        print("entering")
+        self.users = {}
+        self.rooms = {}
+        try:
+            with open(self.user_db_file) as u, open(self.rooms_db_file) as r:
+                self.users = json.loads(u.read())
+                self.rooms = json.loads(r.read())
+        except json.JSONDecodeError:
+            pass
 
     def get_user(self, user_id: str = "") -> Dict:
         """Fetches the user data from Database"""
@@ -86,14 +87,11 @@ class DbManager:
         )
         return message_id
 
-    def close(self) -> None:
-        """Closes and saves the database"""
-        u = open(self.user_db_file, "w")
-        json.dump(self.users, u)
-        r = open(self.rooms_db_file, "w")
-        json.dump(self.rooms, r)
-        u.close()
-        r.close()
+    def save(self) -> None:
+        """Saves the database"""
+        with open(self.user_db_file, "w") as u, open(self.rooms_db_file, "w") as r:
+            json.dump(self.users, u)
+            json.dump(self.rooms, r)
 
 
 class ConnectionManager:
@@ -114,12 +112,11 @@ class ConnectionManager:
         """Destroys the exisiting client handler"""
         self.active_sessions.pop(session_id, None)
 
-    def is_roomate_online(self, user_id: str, room_id: str) -> WebSocket | None:
+    def is_user_online(self, user_id: str) -> WebSocket | None:
         """Checks for roomate is online"""
-        roomate_id = room_id.replace(user_id, "")
         for obj in self.active_sessions.values():
             if obj.logged_in:
-                if roomate_id == obj.user_id:
+                if user_id == obj.user_id:
                     return obj.websocket
         else:
             return None
