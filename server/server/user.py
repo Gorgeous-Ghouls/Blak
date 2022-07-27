@@ -27,6 +27,12 @@ def websocket_connection(method):
 class User(object):
     """Class which handles and setups the incoming client connection"""
 
+    close: bool
+    websocket: WebSocket
+    db: managers.DbManager
+    connections: managers.ConnectionManager
+    logged_in: bool
+
     @classmethod
     async def create(
         cls,
