@@ -18,7 +18,7 @@ class DbManager:
             with open(self.user_db_file) as u, open(self.rooms_db_file) as r:
                 self.users = json.loads(u.read())
                 self.rooms = json.loads(r.read())
-        except (FileNotFoundError,json.JSONDecodeError) as e:
+        except (FileNotFoundError, json.JSONDecodeError) as e:
             print(e)
 
     def get_user(self, user_id: str = "") -> Dict:
