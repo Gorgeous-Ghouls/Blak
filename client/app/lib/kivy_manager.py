@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sys
+import traceback
 from typing import Any, TypedDict
 from uuid import UUID
 
@@ -41,13 +42,14 @@ class ClientUI(MDApp):
     root: MDBoxLayout
     ws: websockets.WebSocketClientProtocol = None
     login: bool = BooleanProperty(False)
-    user_name: str = StringProperty()
+    username: str = StringProperty()
     user_id: UUID = None
     login_helper_text: str = StringProperty()
     login_data_sent: bool = BooleanProperty(
         False
     )  # very inefficient way to stop spamming
 
+    rooms: list
     connection_status: str = StringProperty("Disconnected")
 
     def __init__(self, **kwargs):
@@ -125,11 +127,13 @@ class ClientUI(MDApp):
                     await self.ws.close()
                     break
 
-                except Exception as e:
-                    Logger.warn(f"ws_handler: Something happened {e}")
+                except Exception:
+                    Logger.warn(
+                        f"ws_handler: Something happened \n{traceback.format_exc()}"
+                    )
             if connection_closed:
                 try:
-                    self.ws = await websockets.connect("ws://localhost:8765")
+                    self.ws = await websockets.connect("ws://localhost:8000/ws")
                     await self.connection_established()
                     connection_closed = False
                 except (OSError, asyncio.exceptions.CancelledError):
@@ -148,15 +152,37 @@ class ClientUI(MDApp):
             reply = json.loads(reply)
             Logger.info(f"hrd: {reply}")
             match reply["type"]:
-                case "user.login":
-                    if reply["data"]:  # login Successful
-                        self.user_id = UUID(reply["user-id"])
-                        self.user_name = reply["username"]
+                case "user.login.success":
+                    if data := reply["data"]:  # login Successful
+                        self.user_id = UUID(data["user_id"])
+                        self.username = data["username"]
+                        self.rooms = data["rooms"]
                         self.login = True
-                    else:
-                        self.login_helper_text = "Invalid Username or Password"
-                        # todo clear username and password fields
-                        self.login_data_sent = False
+                case "user.login.rejected":
+                    self.login_helper_text = "Invalid Username or Password"
+                    login_screen: ui.LoginScreen
+                    login_screen = (
+                        self.root.ids["app_screen_manager"]
+                        .get_screen("login")
+                        .children[0]
+                    )
+                    login_screen.reset_fields()
+                    self.do_logout(close_connection=False)
+                    self.login_data_sent = False
+                case "user.register.success":
+                    self.login_helper_text = "Registration Successful"
+
+                    login_screen: ui.LoginScreen
+                    login_screen = (
+                        self.root.ids["app_screen_manager"]
+                        .get_screen("login")
+                        .children[0]
+                    )
+                    login_screen.reset_fields()
+                    login_screen.ids["button_container"].remove_widget(
+                        login_screen.ids["register_button"]
+                    )
+                    self.login_data_sent = False
 
         except json.JSONDecodeError:
             Logger.warn(f"Wrong Json data {reply}")
@@ -227,11 +253,11 @@ class ClientUI(MDApp):
         else:
             self.root.ids["app_screen_manager"].current = "login"
 
-    def do_login(self, username: str, password: str):
+    def do_login(self, username: str, password: str, register: bool = False):
         """Login the user and set app.login accordingly"""
         if not self.login_data_sent and (len(username) and len(password)):
             data = {
-                "type": "user.login",
+                "type": "user.register" if register else "user.login",
                 "username": username,
                 "password": password,
             }
@@ -239,11 +265,13 @@ class ClientUI(MDApp):
                 self.login_data_sent = True
             self.send_data(value=data)
 
-    def do_logout(self):
+    def do_logout(self, close_connection: bool = True):
         """Reset User info and go back to log in screen"""
-        self.user_name = ""
+        self.username = ""
         self.user_id = UUID(int=0)
         self.login = False
+        if close_connection:
+            asyncio.create_task(self.ws.close())
 
         # remove all chats and chat messages
         self.root.ids["chat_list_container"].clear_widgets()

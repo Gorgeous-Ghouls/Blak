@@ -10,6 +10,15 @@ from kivymd.uix.screen import MDScreen
 from ..utils import Colors
 
 
+class LoginScreen(MDFloatLayout):
+    """Login Screen for the app"""
+
+    def reset_fields(self):
+        """Reset the username and password field."""
+        self.ids["username"].text = ""
+        self.ids["password"].text = ""
+
+
 class ChatItem(MDCard):
     """Class representing a chat."""
 
