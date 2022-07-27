@@ -1,7 +1,6 @@
 """This is where the main backend app will go into"""
 
 from fastapi import FastAPI, WebSocket
-from fastapi.responses import HTMLResponse
 
 from .managers import ConnectionManager, DbManager
 
