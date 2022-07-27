@@ -98,7 +98,7 @@ class User(object):
     @websocket_connection
     async def handle_user(self, user_id):
         """Handles requests from a logged in user"""
-        while True and not self.close:
+        while not self.close:
             request = await self.websocket.receive_json()
             if request["type"] == "msg.send":
                 roomate_websocket = self.connections.is_roomate_online(
