@@ -31,5 +31,5 @@ build/
 .DS_Store
 
 #database
-server/users.json
-server/rooms.json
+/server/server/users.json
+/server/server/rooms.json
