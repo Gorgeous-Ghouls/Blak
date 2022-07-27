@@ -97,7 +97,7 @@ class ClientUI(MDApp):
         run_wrapper starts kivy app and waits for it to finish
         ws_handler_task handles receiving of data from server
         """
-        self.ws_handler_task = asyncio.ensure_future(self.ws_handler())
+        self.ws_handler_task = asyncio.create_task(self.ws_handler())
 
         async def run_wrapper():
             """Function to start kivy"""
