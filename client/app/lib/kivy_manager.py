@@ -12,6 +12,7 @@ from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.modules import inspector
 from kivy.properties import BooleanProperty, StringProperty
+from kivy.utils import platform
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 
@@ -68,12 +69,17 @@ class ClientUI(MDApp):
         # load root explicitly
         root = Builder.load_file(str(app_dir / "ui/kv_files/client_ui.kv"))
         root.ids["titlebar"]: ui.TitleBar
-        if Window.set_custom_titlebar(root.ids["titlebar"]):
-            Logger.info("Window: setting custom titlebar successful")
+        if platform in ["win", "linux"]:  # only set title bar on Windows and linux
+            if Window.set_custom_titlebar(root.ids["titlebar"]):
+                Logger.info("Window: setting custom titlebar successful")
+            else:
+                Logger.info(
+                    "Window: setting custom titlebar " "Not allowed on this system "
+                )
         else:
-            Logger.info(
-                "Window: setting custom titlebar " "Not allowed on this system "
-            )
+            root.remove_widget(root.ids["titlebar"])
+            Window.borderless = False
+            Window.custom_titlebar = False
         inspector.create_inspector(Window, root)
         return root
 
