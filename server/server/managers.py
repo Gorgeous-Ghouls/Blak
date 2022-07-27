@@ -15,12 +15,22 @@ class DbManager:
         self.users = {}
         self.rooms = {}
         try:
-            with open(self.user_db_file) as u, open(self.rooms_db_file) as r:
-                self.users = json.loads(u.read())
-                self.rooms = json.loads(r.read())
-        except FileNotFoundError as e:
-            print(e)
-        except json.JSONDecodeError as e:
+            with open(self.user_db_file) as user_file, open(
+                self.rooms_db_file
+            ) as rooms_file:
+                users_data = user_file.read()
+                rooms_data = rooms_file.read()
+                if len(users_data):
+                    try:
+                        self.users = json.loads(users_data)
+                    except json.JSONDecodeError:
+                        self.users = dict()
+                if len(rooms_data):
+                    try:
+                        self.rooms = json.loads(rooms_data)
+                    except json.JSONDecodeError:
+                        self.rooms = dict()
+        except (FileNotFoundError, json.JSONDecodeError) as e:
             print(e)
 
     def get_user(self, user_id: str = "") -> Dict:
@@ -86,9 +96,11 @@ class DbManager:
 
     def save(self) -> None:
         """Saves the database"""
-        with open(self.user_db_file, "w") as u, open(self.rooms_db_file, "w") as r:
-            json.dump(self.users, u)
-            json.dump(self.rooms, r)
+        with open(self.user_db_file, "w") as users_file, open(
+            self.rooms_db_file, "w"
+        ) as rooms_file:
+            json.dump(self.users, users_file)
+            json.dump(self.rooms, rooms_file)
 
 
 class ConnectionManager:
