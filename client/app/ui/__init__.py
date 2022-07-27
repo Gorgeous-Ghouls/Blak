@@ -5,6 +5,7 @@ from kivymd.app import MDApp
 from kivymd.uix.button import BaseButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd.uix.screen import MDScreen
 
 from ..utils import Colors
 
@@ -77,3 +78,18 @@ class TitleBar(MDFloatLayout):
                     self.app.root_window.minimize()
                 case "window-maximize":
                     self.app.root_window.maximize()
+
+
+class ChatMessagesScreen(MDScreen):
+    """Class representing a chat screen."""
+
+    def __init__(self, **kwargs):
+        super(ChatMessagesScreen, self).__init__(**kwargs)
+        from ..lib.kivy_manager import ClientUI
+
+        self.app: ClientUI = MDApp.get_running_app()
+        self.times_validated = 0
+
+    def send_message(self, message: str):
+        """Send message to server."""
+        pass  # todo actually send message

@@ -1,7 +1,7 @@
 import enum
 from pathlib import Path
 
-from kivy.utils import deprecated, get_color_from_hex
+from kivy.utils import get_color_from_hex
 
 
 class Colors(enum.Enum):
@@ -15,7 +15,6 @@ class Colors(enum.Enum):
     text_dark = "#A27B5C"
 
     @staticmethod
-    @deprecated(msg="This function will be removed in next minor version")
     def get_kivy_color(color: str) -> list[float]:
         """Returns kivy compatible colors"""
         if hasattr(Colors, color):
