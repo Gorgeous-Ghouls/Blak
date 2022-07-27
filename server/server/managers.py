@@ -50,11 +50,8 @@ class DbManager:
         }
         return room_id
 
-    def create_user(self, username: str, password: str) -> Dict:
+    def create_user(self, username: str, password: str) -> str:
         """Creates a new user"""
-        for i in self.users:
-            if username in self.users[i]["username"]:
-                return {"error": "This username already exists"}
         user_id = str(uuid.uuid4())
         self.users[user_id] = {
             "user_id": user_id,
@@ -71,7 +68,7 @@ class DbManager:
 
     def create_message(
         self, sender_id: str, message: str, timestamp: int, room_id: str
-    ) -> Dict:
+    ) -> str:
         """Adds a message created by the user to Database"""
         req_room = self.rooms[room_id]
         message_id = str(uuid.uuid4())

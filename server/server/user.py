@@ -34,7 +34,7 @@ class User(object):
         websocket: WebSocket,
         db: managers.DbManager,
         connections: managers.ConnectionManager,
-    ):
+    ) -> str:
         """Asynchronous __init__ of User class"""
         self = User()
         self.session_id = session_id
@@ -49,7 +49,7 @@ class User(object):
         await self.handle_user(self.user_id)
 
     @websocket_connection
-    async def wait_for_auth(self):
+    async def wait_for_auth(self) -> str:
         """Authenticates(login or register) incoming connections from a user"""
         retry = True
         while retry or not self.close:
