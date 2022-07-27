@@ -53,7 +53,6 @@ class ClientUI(MDApp):
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
         self.ws_handler_task = None
-
         self.root: MDBoxLayout
 
     def build(self):
@@ -85,10 +84,11 @@ class ClientUI(MDApp):
 
     def on_start(self):
         """Called just before the app window is shown"""
-        self.root.ids["titlebar"]: ui.TitleBar
-        Clock.schedule_once(
-            lambda dt: self.root.ids["titlebar"].fix_layout()
-        )  # needed to make sure custom titlebar renders properly on windows and mac
+        if Window.custom_titlebar:
+            self.root.ids["titlebar"]: ui.TitleBar
+            Clock.schedule_once(
+                lambda dt: self.root.ids["titlebar"].fix_layout()
+            )  # needed to make sure custom titlebar renders properly on Windows
         self.root.ids["app_screen_manager"].current = "app"
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
@@ -189,12 +189,15 @@ class ClientUI(MDApp):
         try:
             self.login_data_sent = True
             self.connection_status = "Disconnected"
-            self.root.ids["titlebar"].ids["connection_status_label"].color = [
-                1,
-                0,
-                0,
-                1,
-            ]  # red
+            if Window.custom_titlebar:
+                self.root.ids["titlebar"].ids["connection_status_label"].color = [
+                    1,
+                    0,
+                    0,
+                    1,
+                ]  # red
+            else:
+                self.set_window_title()
             # todo enumerate things that are needed to be done when connection is lost
         except AttributeError:  # when ws_handler_task exits after run_wrapper is finished
             sys.exit(0)
@@ -203,9 +206,12 @@ class ClientUI(MDApp):
         """Function called whenever connection with the server is established"""
         Logger.info("WS: Connected")
         self.connection_status = "Connected"
-        self.root.ids["titlebar"].ids[
-            "connection_status_label"
-        ].color = Colors.get_kivy_color("accent_bg_text")
+        if Window.custom_titlebar:
+            self.root.ids["titlebar"].ids[
+                "connection_status_label"
+            ].color = Colors.get_kivy_color("accent_bg_text")
+        else:
+            self.set_window_title()
         self.login_data_sent = False
         # todo enumerate things that are needed to be done when connection is established
 
@@ -242,3 +248,8 @@ class ClientUI(MDApp):
         # remove all chats and chat messages
         self.root.ids["chat_list_container"].clear_widgets()
         self.root.ids["chats_screen_manager"].clear_widgets()
+
+    def set_window_title(self):
+        """Sets window title when custom_titlebar is not used"""
+        if not Window.custom_titlebar:
+            self.title += f" - {self.connection_status}"
