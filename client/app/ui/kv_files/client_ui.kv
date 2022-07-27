@@ -13,7 +13,13 @@ MDBoxLayout:
         id: app_screen_manager
         MDScreen:
             name: "login"
+            # reset fields
+            on_pre_enter: login_screen.ids.username.text,login_screen.ids.password.text = "",""
+            on_leave: login_screen.ids.username.text,login_screen.ids.password.text = "",""
+
             LoginScreen:
+                id: login_screen
+
         MDScreen:
             name: "app"
             MDBoxLayout:
