@@ -76,7 +76,7 @@ class ClientUI(MDApp):
 
     def on_start(self):
         """Called just before the app window is shown"""
-        self.root.ids["app_screen_manager"].current = "app"
+        self.root.ids["app_screen_manager"].current = "login"
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously
