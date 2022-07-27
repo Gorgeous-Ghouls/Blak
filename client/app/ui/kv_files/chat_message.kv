@@ -15,25 +15,28 @@
                     text: "Single-line"
         MDGridLayout:
             #:set padding "10dp"  # you can set variable in kvlang
-            padding: padding, 0, padding, padding
+            padding: padding, 0, padding, 0
             adaptive_height: True
             rows: 1
-            MDTextField:
-                id : chat_input
+            MDBoxLayout:
+                md_bg_color: Colors.get_kivy_color("accent_bg")
+                radius: [5, 5, 0, 0 ]
+                padding: [5,0,0,5]
+                MDTextField:
+                    id : chat_input
 
-                helper_text: 'Enter your message'
-                helper_text_mode: "persistent"
-                hint_text_font: 'Inria Sans'
-                radius: [10, 10, 0, 0 ]
-                fill_color: Colors.get_kivy_color("accent_bg")
-                multiline: False
+                    helper_text: 'Enter your message'
+                    helper_text_mode: "persistent"
+                    hint_text_font: 'Inria Sans'
 
-                text_color_normal: Colors.get_kivy_color("text_dark")
-                text_color_focus: Colors.get_kivy_color("text_medium")
-                hint_text_color_normal: Colors.get_kivy_color("primary_bg")
-                hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
-                line_color_focus: Colors.get_kivy_color("text_dark")
-                on_text_validate: root.send_message(chat_input.text)
+                    multiline: False
+
+                    text_color_normal: Colors.get_kivy_color("text_dark")
+                    text_color_focus: Colors.get_kivy_color("text_medium")
+                    hint_text_color_normal: Colors.get_kivy_color("primary_bg")
+                    hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
+                    line_color_focus: Colors.get_kivy_color("text_dark")
+                    on_text_validate: root.send_message(chat_input.text)
 
             MDIconButton:
                 icon: "send"
