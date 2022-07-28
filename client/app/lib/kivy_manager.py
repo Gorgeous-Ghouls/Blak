@@ -13,9 +13,13 @@ from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.modules import inspector
 from kivy.properties import BooleanProperty, StringProperty
+from kivy.uix.screenmanager import ScreenManager
 from kivy.utils import platform
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.textfield import MDTextField
 
 from ..utils import Colors, app_dir
 
@@ -27,13 +31,13 @@ class KivyIds(TypedDict):
     """Class to track ids defined in kv files"""
 
     # todo ask can how can this be used to auto-complete dict keys
-    titlebar: str
-    chat_list_container: str
-    main_box: str
-    app_screen_manager: str
-    chats_screen_manager: str
-    username: str
-    password: str
+    titlebar: ui.TitleBar
+    chat_list_container: MDGridLayout
+    main_box: MDBoxLayout
+    app_screen_manager: ScreenManager
+    chats_screen_manager: ScreenManager
+    username: MDTextField
+    password: MDTextField
 
 
 class ClientUI(MDApp):
@@ -157,6 +161,8 @@ class ClientUI(MDApp):
                         self.user_id = UUID(data["user_id"])
                         self.username = data["username"]
                         self.rooms = data["rooms"]
+                        for room in self.rooms:
+                            self.add_chat_screen(room["room_id"])
                         self.login = True
                 case "user.login.rejected":
                     self.login_helper_text = "Invalid Username or Password"
@@ -183,6 +189,11 @@ class ClientUI(MDApp):
                         login_screen.ids["register_button"]
                     )
                     self.login_data_sent = False
+
+                case "room.create.success":
+                    if room_id := reply["room_id"]:
+                        self.add_chat_screen(room_id).current = room_id
+                        self.dismiss_top_popup()
 
         except json.JSONDecodeError:
             Logger.warn(f"Wrong Json data {reply}")
@@ -241,10 +252,37 @@ class ClientUI(MDApp):
         self.login_data_sent = False
         # todo enumerate things that are needed to be done when connection is established
 
-    async def add_chat(self):
+    def add_chat(self, user_id: str):
         """Adds new user to Chat list container"""
         # todo complete addition of chats when a successful response or request to add a chat is received
         pass
+
+    async def add_chat_wrapper(self, user_id: str):
+        """Adds new user to Chat list container"""
+        # todo complete addition of chats when a successful response or request to add a chat is received
+        pass
+
+    async def check_user_id(self, user_id: str, dialog: ui.Dialog):
+        """Sends request to the server to check if user with user_id exists"""
+        try:
+            UUID(user_id)
+        except ValueError:
+            Logger.warn(f"Wrong User id {user_id}")
+            dialog.content_cls.ids["user_id_input"].helper_text = "Wrong User id"
+            dialog.content_cls.ids["user_id_input"].helper_text_color_normal = [
+                1,
+                0,
+                0,
+                1,
+            ]
+            return
+        request_data = {
+            "type": "room.create",
+            "user_id": str(self.user_id),
+            "data": str(user_id),
+        }
+
+        await self.send_data_wrapper(request_data)
 
     def on_login(self, instance, value):
         """Sets correct login screen whenever app.login changes"""
@@ -281,3 +319,54 @@ class ClientUI(MDApp):
         """Sets window title when custom_titlebar is not used"""
         if not Window.custom_titlebar:
             self.title += f" - {self.connection_status}"
+
+    # callbacks
+    def show_add_chat_dialog(self):
+        """Shows a dialog to add a new chat"""
+        dialog = ui.Dialog(
+            title="Add new Chat",
+            type="custom",
+            content_cls=ui.NewChatInputFields(),
+            buttons=[
+                MDFlatButton(
+                    text="CANCEL",
+                    theme_text_color="Custom",
+                    text_color=Colors.get_kivy_color("text_medium"),
+                ),
+                MDFlatButton(
+                    text="Add",
+                    theme_text_color="Custom",
+                    text_color=Colors.get_kivy_color("text_medium"),
+                ),
+            ],
+        )
+        btn: MDFlatButton
+        for btn in dialog.buttons:
+            match btn.text:
+                case "CANCEL":
+                    btn.bind(on_release=lambda i: dialog.dismiss())
+                case "Add":
+                    btn.bind(
+                        on_release=lambda i: asyncio.create_task(
+                            self.check_user_id(
+                                dialog.content_cls.ids["user_id_input"].text, dialog
+                            )
+                        )
+                    )
+        dialog.open()
+
+    def dismiss_top_popup(self):
+        """Dismiss top-most active popup"""
+        if isinstance(self.root_window.children[0], ui.Dialog):
+            self.root_window.children[0].dismiss()
+
+    def add_chat_screen(self, room_id: str) -> ScreenManager:
+        """Adds chat and its screen to the app"""
+        chats_screen: ScreenManager
+        chats_screen = self.root.ids["chats_screen_manager"]
+        if not chats_screen.has_screen(room_id):
+            self.root.ids["chat_list_container"].add_widget(
+                ui.ChatItem(username=room_id, custom_id=room_id)
+            )
+            chats_screen.add_widget(ui.ChatMessagesScreen(name=room_id))
+        return chats_screen

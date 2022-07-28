@@ -1,13 +1,34 @@
+from kivy import Logger
 from kivy.core.window import Window
+from kivy.properties import BooleanProperty
 from kivy.uix.screenmanager import ScreenManager
 from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
 from kivymd.uix.button import BaseButton
 from kivymd.uix.card import MDCard
+from kivymd.uix.dialog import MDDialog
 from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.screen import MDScreen
 
 from ..utils import Colors
+
+
+class Dialog(MDDialog):
+    """Custom dialog with a few changes"""
+
+    active = BooleanProperty(False)
+
+    def __init__(self, *args, **kwargs):
+        if title := kwargs.get("title", None):
+            kwargs["title"] = f"[color={Colors.accent_bg_text.value}]{title}[/color]"
+
+        super().__init__(**kwargs)
+
+    def on_active(self, instance, active):
+        """Closes dialog if active set to False"""
+        if not active:
+            self.dismiss()
 
 
 class LoginScreen(MDFloatLayout):
@@ -30,7 +51,7 @@ class ChatItem(MDCard):
         custom_id: str,
         last_seen: str = "",
         msg_count: str = "",
-        **kwargs
+        **kwargs,
     ):
 
         self.username = username
@@ -39,13 +60,17 @@ class ChatItem(MDCard):
         self.msg_count = msg_count
         super(ChatItem, self).__init__()
 
-    def on_touch_up(self, touch):
+    def on_touch_down(self, touch) -> bool:
         """Event Fired everytime mouse is released to tap is released."""
         if self.collide_point(*touch.pos):
             screen_manager: ScreenManager
             screen_manager = MDApp.get_running_app().root.ids["chats_screen_manager"]
             if screen_manager.has_screen(self.custom_id):
-                screen_manager.current_screen = self.custom_id
+                screen_manager.current = self.custom_id
+                return True
+            else:
+                Logger.info(f"{self.custom_id} screen not found")
+            return False
 
             # switch screen to the chat
 
@@ -102,3 +127,9 @@ class ChatMessagesScreen(MDScreen):
     def send_message(self, message: str):
         """Send message to server."""
         pass  # todo actually send message
+
+
+class NewChatInputFields(MDGridLayout):
+    """Fields for when adding a new chat"""
+
+    pass
