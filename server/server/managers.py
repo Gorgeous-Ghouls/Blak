@@ -60,10 +60,10 @@ class DbManager:
     def create_room(self, sender_id: str, receiver_id: str) -> str | None:
         """Creates a new room(only if the persons don't already have one)"""
         room_id = sender_id + receiver_id
-        if ((sender_id + receiver_id) in self.rooms) or (
-            (receiver_id + sender_id) in self.rooms
-        ):
-            return None
+        if ((sender_id + receiver_id) in self.rooms):
+            return sender_id + receiver_id
+        elif ((receiver_id + sender_id) in self.rooms):
+            return receiver_id + sender_id
         self.rooms[room_id] = {
             "room_id": room_id,
             "users": [sender_id, receiver_id],
