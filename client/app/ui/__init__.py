@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from kivy import Logger
 from kivy.core.window import Window
 from kivy.properties import BooleanProperty
@@ -9,6 +11,7 @@ from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.list import OneLineListItem
 from kivymd.uix.screen import MDScreen
 
 from ..utils import Colors
@@ -117,16 +120,44 @@ class TitleBar(MDFloatLayout):
 class ChatMessagesScreen(MDScreen):
     """Class representing a chat screen."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, other_user: str, **kwargs):
+        self.other_user = other_user
         super(ChatMessagesScreen, self).__init__(**kwargs)
         from ..lib.kivy_manager import ClientUI
 
         self.app: ClientUI = MDApp.get_running_app()
         self.times_validated = 0
 
-    def send_message(self, message: str):
+    def send_message(self, message: str, message_input=None):
         """Send message to server."""
-        pass  # todo actually send message
+        if message:
+            msg_data = {
+                "type": "msg.send",
+                "other_id": self.other_user,
+                "data": message,
+                "timestamp": str(datetime.now().timestamp()),
+                "room_id": self.name,
+            }
+            self.add_message(message, Colors.text_medium.value)
+            self.app.send_data(value=msg_data)
+            if message_input:
+                message_input.text = ""
+
+    def add_message(self, message: str, text_color: list):
+        """Adds a received message to the screen."""
+        # {
+        #     "type": "msg.recv",
+        #     "message_id": message_id,
+        #     "user_id": user_id,
+        #     "data": request["data"],
+        #     "room_id": request["room_id"],
+        #     "timestamp": request["timestamp"],
+        # }
+        self.ids["chat_list"].add_widget(
+            OneLineListItem(
+                text=message, theme_text_color="Custom", text_color=text_color
+            )
+        )
 
 
 class NewChatInputFields(MDGridLayout):

@@ -155,14 +155,43 @@ class ClientUI(MDApp):
         try:
             reply = json.loads(reply)
             Logger.info(f"hrd: {reply}")
+            chats_screen_manager: ScreenManager
+            chats_screen_manager = self.root.ids["chats_screen_manager"]
             match reply["type"]:
+                case "msg.recv":
+                    if chats_screen_manager.has_screen(reply["room_id"]):
+                        screen: ui.ChatMessagesScreen
+                        screen = chats_screen_manager.get_screen(reply["room_id"])
+                        screen.add_message(
+                            reply["data"], Colors.get_kivy_color("text_dark")
+                        )
+
                 case "user.login.success":
                     if data := reply["data"]:  # login Successful
+                        self.title += f" {data['user_id']}"
                         self.user_id = UUID(data["user_id"])
+
                         self.username = data["username"]
                         self.rooms = data["rooms"]
                         for room in self.rooms:
-                            self.add_chat_screen(room["room_id"])
+                            other_id = room["room_id"].replace(str(self.user_id), "")
+                            self.add_chat_screen(room["room_id"], str(other_id))
+                            for message in room["messages"]:
+                                screen: ui.ChatMessagesScreen
+                                screen = chats_screen_manager.get_screen(
+                                    room["room_id"]
+                                )
+                                if message["sender"] == str(self.user_id):
+                                    screen.add_message(
+                                        message["message"],
+                                        Colors.get_kivy_color("text_medium"),
+                                    )
+                                else:
+                                    screen.add_message(
+                                        message["message"],
+                                        Colors.get_kivy_color("text_dark"),
+                                    )
+
                         self.login = True
                 case "user.login.rejected":
                     self.login_helper_text = "Invalid Username or Password"
@@ -192,7 +221,9 @@ class ClientUI(MDApp):
 
                 case "room.create.success":
                     if room_id := reply["room_id"]:
-                        self.add_chat_screen(room_id).current = room_id
+                        self.add_chat_screen(
+                            room_id, reply["other_id"]
+                        ).current = room_id
                         self.dismiss_top_popup()
 
         except json.JSONDecodeError:
@@ -360,7 +391,7 @@ class ClientUI(MDApp):
         if isinstance(self.root_window.children[0], ui.Dialog):
             self.root_window.children[0].dismiss()
 
-    def add_chat_screen(self, room_id: str) -> ScreenManager:
+    def add_chat_screen(self, room_id: str, other_user: str) -> ScreenManager:
         """Adds chat and its screen to the app"""
         chats_screen: ScreenManager
         chats_screen = self.root.ids["chats_screen_manager"]
@@ -368,5 +399,7 @@ class ClientUI(MDApp):
             self.root.ids["chat_list_container"].add_widget(
                 ui.ChatItem(username=room_id, custom_id=room_id)
             )
-            chats_screen.add_widget(ui.ChatMessagesScreen(name=room_id))
+            chats_screen.add_widget(
+                ui.ChatMessagesScreen(other_user=other_user, name=room_id)
+            )
         return chats_screen
