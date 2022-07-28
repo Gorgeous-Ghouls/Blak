@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sys
+import traceback
 from typing import Any, TypedDict
 from uuid import UUID
 
@@ -12,9 +13,13 @@ from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.modules import inspector
 from kivy.properties import BooleanProperty, StringProperty
+from kivy.uix.screenmanager import ScreenManager
 from kivy.utils import platform
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.textfield import MDTextField
 
 from ..utils import Colors, app_dir
 
@@ -26,13 +31,13 @@ class KivyIds(TypedDict):
     """Class to track ids defined in kv files"""
 
     # todo ask can how can this be used to auto-complete dict keys
-    titlebar: str
-    chat_list_container: str
-    main_box: str
-    app_screen_manager: str
-    chats_screen_manager: str
-    username: str
-    password: str
+    titlebar: ui.TitleBar
+    chat_list_container: MDGridLayout
+    main_box: MDBoxLayout
+    app_screen_manager: ScreenManager
+    chats_screen_manager: ScreenManager
+    username: MDTextField
+    password: MDTextField
 
 
 class ClientUI(MDApp):
@@ -41,13 +46,14 @@ class ClientUI(MDApp):
     root: MDBoxLayout
     ws: websockets.WebSocketClientProtocol = None
     login: bool = BooleanProperty(False)
-    user_name: str = StringProperty()
+    username: str = StringProperty()
     user_id: UUID = None
     login_helper_text: str = StringProperty()
     login_data_sent: bool = BooleanProperty(
         False
     )  # very inefficient way to stop spamming
 
+    rooms: list
     connection_status: str = StringProperty("Disconnected")
 
     def __init__(self, **kwargs):
@@ -125,11 +131,13 @@ class ClientUI(MDApp):
                     await self.ws.close()
                     break
 
-                except Exception as e:
-                    Logger.warn(f"ws_handler: Something happened {e}")
+                except Exception:
+                    Logger.warn(
+                        f"ws_handler: Something happened \n{traceback.format_exc()}"
+                    )
             if connection_closed:
                 try:
-                    self.ws = await websockets.connect("ws://localhost:8765")
+                    self.ws = await websockets.connect("ws://localhost:8000/ws")
                     await self.connection_established()
                     connection_closed = False
                 except (OSError, asyncio.exceptions.CancelledError):
@@ -147,16 +155,83 @@ class ClientUI(MDApp):
         try:
             reply = json.loads(reply)
             Logger.info(f"hrd: {reply}")
+            chats_screen_manager: ScreenManager
+            chats_screen_manager = self.root.ids["chats_screen_manager"]
             match reply["type"]:
-                case "user.login":
-                    if reply["data"]:  # login Successful
-                        self.user_id = UUID(reply["user-id"])
-                        self.user_name = reply["username"]
+                case "msg.recv":
+                    if chats_screen_manager.has_screen(reply["room_id"]):
+                        screen: ui.ChatMessagesScreen
+                        screen = chats_screen_manager.get_screen(reply["room_id"])
+                        screen.add_message(
+                            reply["data"], Colors.get_kivy_color("text_dark")
+                        )
+
+                case "user.login.success":
+                    if data := reply["data"]:  # login Successful
+                        self.title += f" {data['user_id']}"
+                        self.user_id = UUID(data["user_id"])
+
+                        self.username = data["username"]
+                        self.rooms = data["rooms"]
+                        for room in self.rooms:
+                            room_id = room["room_id"]
+                            other_username = next(
+                                username
+                                for username in room["usernames"]
+                                if username != self.username
+                            )
+                            other_id = self.get_other_user_id(room_id)
+                            self.add_chat_screen(room_id, str(other_id), other_username)
+                            for message in room["messages"]:
+                                screen: ui.ChatMessagesScreen
+                                screen = chats_screen_manager.get_screen(room_id)
+                                if message["sender"] == str(self.user_id):
+                                    screen.add_message(
+                                        message["message"],
+                                        Colors.get_kivy_color("text_medium"),
+                                    )
+                                else:
+                                    screen.add_message(
+                                        message["message"],
+                                        Colors.get_kivy_color("text_dark"),
+                                    )
+
                         self.login = True
-                    else:
-                        self.login_helper_text = "Invalid Username or Password"
-                        # todo clear username and password fields
-                        self.login_data_sent = False
+                case "user.login.rejected":
+                    self.login_helper_text = "Invalid Username or Password"
+                    login_screen: ui.LoginScreen
+                    login_screen = (
+                        self.root.ids["app_screen_manager"]
+                        .get_screen("login")
+                        .children[0]
+                    )
+                    login_screen.reset_fields()
+                    self.do_logout(close_connection=False)
+                    self.login_data_sent = False
+                case "user.register.success":
+                    self.login_helper_text = "Registration Successful"
+
+                    login_screen: ui.LoginScreen
+                    login_screen = (
+                        self.root.ids["app_screen_manager"]
+                        .get_screen("login")
+                        .children[0]
+                    )
+                    login_screen.reset_fields()
+                    login_screen.ids["button_container"].remove_widget(
+                        login_screen.ids["register_button"]
+                    )
+                    self.login_data_sent = False
+
+                case "room.create.success":
+                    room_id: str
+                    if room_id := reply["room_id"]:
+                        self.add_chat_screen(
+                            room_id,
+                            self.get_other_user_id(room_id),
+                            reply["other_username"],
+                        ).current = room_id
+                        self.dismiss_top_popup()
 
         except json.JSONDecodeError:
             Logger.warn(f"Wrong Json data {reply}")
@@ -215,10 +290,37 @@ class ClientUI(MDApp):
         self.login_data_sent = False
         # todo enumerate things that are needed to be done when connection is established
 
-    async def add_chat(self):
+    def add_chat(self, user_id: str):
         """Adds new user to Chat list container"""
         # todo complete addition of chats when a successful response or request to add a chat is received
         pass
+
+    async def add_chat_wrapper(self, user_id: str):
+        """Adds new user to Chat list container"""
+        # todo complete addition of chats when a successful response or request to add a chat is received
+        pass
+
+    async def check_user_id(self, user_id: str, dialog: ui.Dialog):
+        """Sends request to the server to check if user with user_id exists"""
+        try:
+            UUID(user_id)
+        except ValueError:
+            Logger.warn(f"Wrong User id {user_id}")
+            dialog.content_cls.ids["user_id_input"].helper_text = "Wrong User id"
+            dialog.content_cls.ids["user_id_input"].helper_text_color_normal = [
+                1,
+                0,
+                0,
+                1,
+            ]
+            return
+        request_data = {
+            "type": "room.create",
+            "user_id": str(self.user_id),
+            "other_id": str(user_id),
+        }
+
+        await self.send_data_wrapper(request_data)
 
     def on_login(self, instance, value):
         """Sets correct login screen whenever app.login changes"""
@@ -227,11 +329,11 @@ class ClientUI(MDApp):
         else:
             self.root.ids["app_screen_manager"].current = "login"
 
-    def do_login(self, username: str, password: str):
+    def do_login(self, username: str, password: str, register: bool = False):
         """Login the user and set app.login accordingly"""
         if not self.login_data_sent and (len(username) and len(password)):
             data = {
-                "type": "user.login",
+                "type": "user.register" if register else "user.login",
                 "username": username,
                 "password": password,
             }
@@ -239,11 +341,13 @@ class ClientUI(MDApp):
                 self.login_data_sent = True
             self.send_data(value=data)
 
-    def do_logout(self):
+    def do_logout(self, close_connection: bool = True):
         """Reset User info and go back to log in screen"""
-        self.user_name = ""
+        self.username = ""
         self.user_id = UUID(int=0)
         self.login = False
+        if close_connection:
+            asyncio.create_task(self.ws.close())
 
         # remove all chats and chat messages
         self.root.ids["chat_list_container"].clear_widgets()
@@ -253,3 +357,65 @@ class ClientUI(MDApp):
         """Sets window title when custom_titlebar is not used"""
         if not Window.custom_titlebar:
             self.title += f" - {self.connection_status}"
+
+    # callbacks
+    def show_add_chat_dialog(self):
+        """Shows a dialog to add a new chat"""
+        dialog = ui.Dialog(
+            title="Add new Chat",
+            type="custom",
+            content_cls=ui.NewChatInputFields(),
+            buttons=[
+                MDFlatButton(
+                    text="CANCEL",
+                    theme_text_color="Custom",
+                    text_color=Colors.get_kivy_color("text_medium"),
+                ),
+                MDFlatButton(
+                    text="Add",
+                    theme_text_color="Custom",
+                    text_color=Colors.get_kivy_color("text_medium"),
+                ),
+            ],
+        )
+        btn: MDFlatButton
+        for btn in dialog.buttons:
+            match btn.text:
+                case "CANCEL":
+                    btn.bind(on_release=lambda i: dialog.dismiss())
+                case "Add":
+                    btn.bind(
+                        on_release=lambda i: asyncio.create_task(
+                            self.check_user_id(
+                                dialog.content_cls.ids["user_id_input"].text, dialog
+                            )
+                        )
+                    )
+        dialog.open()
+
+    def dismiss_top_popup(self):
+        """Dismiss top-most active popup"""
+        if isinstance(self.root_window.children[0], ui.Dialog):
+            self.root_window.children[0].dismiss()
+
+    def add_chat_screen(
+        self, room_id: str, other_user: str, other_username: str
+    ) -> ScreenManager:
+        """Adds chat and its screen to the app"""
+        chats_screen: ScreenManager
+        chats_screen = self.root.ids["chats_screen_manager"]
+        if not chats_screen.has_screen(room_id):
+            self.root.ids["chat_list_container"].add_widget(
+                ui.ChatItem(username=other_username, custom_id=room_id)
+            )
+            chats_screen.add_widget(
+                ui.ChatMessagesScreen(other_user=other_user, name=room_id)
+            )
+        return chats_screen
+
+    def get_other_user_id(self, room_id: str) -> str:
+        """Returns user id of other user in a chat
+
+        :param room_id id of the room to get the other user from
+        """
+        return room_id.replace(str(self.user_id), "")

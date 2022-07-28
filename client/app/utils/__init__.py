@@ -7,12 +7,12 @@ from kivy.utils import get_color_from_hex
 class Colors(enum.Enum):
     """A class that defines the color pallet used in the app"""
 
-    primary_bg = "#2C3639"
-    accent_bg = "#3F4E4F"
-    accent_bg_text = "#576a6b"
-    text = "#000000"
-    text_medium = "#DCD7C9"
-    text_dark = "#A27B5C"
+    primary_bg = "2C3639"
+    accent_bg = "3F4E4F"
+    accent_bg_text = "576a6b"
+    text = "000000"
+    text_medium = "DCD7C9"
+    text_dark = "A27B5C"
 
     @staticmethod
     def get_kivy_color(color: str) -> list[float]:

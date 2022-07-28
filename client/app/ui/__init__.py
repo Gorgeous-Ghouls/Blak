@@ -1,13 +1,46 @@
+from datetime import datetime
+
+from kivy import Logger
 from kivy.core.window import Window
+from kivy.properties import BooleanProperty
 from kivy.uix.screenmanager import ScreenManager
 from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
 from kivymd.uix.button import BaseButton
 from kivymd.uix.card import MDCard
+from kivymd.uix.dialog import MDDialog
 from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.list import OneLineListItem
 from kivymd.uix.screen import MDScreen
 
 from ..utils import Colors
+
+
+class Dialog(MDDialog):
+    """Custom dialog with a few changes"""
+
+    active = BooleanProperty(False)
+
+    def __init__(self, *args, **kwargs):
+        if title := kwargs.get("title", None):
+            kwargs["title"] = f"[color={Colors.accent_bg_text.value}]{title}[/color]"
+
+        super().__init__(**kwargs)
+
+    def on_active(self, instance, active):
+        """Closes dialog if active set to False"""
+        if not active:
+            self.dismiss()
+
+
+class LoginScreen(MDFloatLayout):
+    """Login Screen for the app"""
+
+    def reset_fields(self):
+        """Reset the username and password field."""
+        self.ids["username"].text = ""
+        self.ids["password"].text = ""
 
 
 class ChatItem(MDCard):
@@ -21,7 +54,7 @@ class ChatItem(MDCard):
         custom_id: str,
         last_seen: str = "",
         msg_count: str = "",
-        **kwargs
+        **kwargs,
     ):
 
         self.username = username
@@ -30,13 +63,17 @@ class ChatItem(MDCard):
         self.msg_count = msg_count
         super(ChatItem, self).__init__()
 
-    def on_touch_up(self, touch):
+    def on_touch_down(self, touch) -> bool:
         """Event Fired everytime mouse is released to tap is released."""
         if self.collide_point(*touch.pos):
             screen_manager: ScreenManager
             screen_manager = MDApp.get_running_app().root.ids["chats_screen_manager"]
             if screen_manager.has_screen(self.custom_id):
-                screen_manager.current_screen = self.custom_id
+                screen_manager.current = self.custom_id
+                return True
+            else:
+                Logger.info(f"{self.custom_id} screen not found")
+            return False
 
             # switch screen to the chat
 
@@ -83,13 +120,47 @@ class TitleBar(MDFloatLayout):
 class ChatMessagesScreen(MDScreen):
     """Class representing a chat screen."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, other_user: str, **kwargs):
+        self.other_user = other_user
         super(ChatMessagesScreen, self).__init__(**kwargs)
         from ..lib.kivy_manager import ClientUI
 
         self.app: ClientUI = MDApp.get_running_app()
         self.times_validated = 0
 
-    def send_message(self, message: str):
+    def send_message(self, message: str, message_input=None):
         """Send message to server."""
-        pass  # todo actually send message
+        if message:
+            msg_data = {
+                "type": "msg.send",
+                "other_id": self.other_user,
+                "data": message,
+                "timestamp": str(datetime.now().timestamp()),
+                "room_id": self.name,
+            }
+            self.add_message(message, Colors.text_medium.value)
+            self.app.send_data(value=msg_data)
+            if message_input:
+                message_input.text = ""
+
+    def add_message(self, message: str, text_color: list):
+        """Adds a received message to the screen."""
+        # {
+        #     "type": "msg.recv",
+        #     "message_id": message_id,
+        #     "user_id": user_id,
+        #     "data": request["data"],
+        #     "room_id": request["room_id"],
+        #     "timestamp": request["timestamp"],
+        # }
+        self.ids["chat_list"].add_widget(
+            OneLineListItem(
+                text=message, theme_text_color="Custom", text_color=text_color
+            )
+        )
+
+
+class NewChatInputFields(MDGridLayout):
+    """Fields for when adding a new chat"""
+
+    pass

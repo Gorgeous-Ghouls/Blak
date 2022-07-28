@@ -7,7 +7,7 @@
     hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
     line_color_focus: Colors.get_kivy_color("text_dark")
 
-<LoginScreen@MDFloatLayout>:
+<LoginScreen>:
     size_hint: 1,1
     MDBoxLayout:
         orientation: "vertical"
@@ -34,8 +34,18 @@
             font_size: "12dp"
             valign: 'center'
             color: [1,0,0,1]
-        MDRectangleFlatButton:
+        MDGridLayout:
+            id: button_container
+            adaptive_size: True
+            spacing: 5
             pos_hint: {'center_x': 0.5,'center_y': 0.5}
-            text: "Login"
-            disabled: app.login_data_sent
-            on_release: app.do_login(username.text, password.text)
+            rows: 1
+            MDRectangleFlatButton:
+                text: "Login"
+                disabled: app.login_data_sent
+                on_release: app.do_login(username.text, password.text)
+            MDRectangleFlatButton:
+                id: register_button
+                text: "Register"
+                disabled: app.login_data_sent
+                on_release: app.do_login(username.text, password.text, True)
