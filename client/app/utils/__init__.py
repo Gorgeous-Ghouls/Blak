@@ -8,6 +8,7 @@ class Colors(enum.Enum):
     """A class that defines the color pallet used in the app"""
 
     primary_bg = "2C3639"
+    primary_bg_text = "2d383b"
     accent_bg = "3F4E4F"
     accent_bg_text = "576a6b"
     text = "000000"

@@ -117,6 +117,16 @@ class TitleBar(MDFloatLayout):
                     self.app.root_window.maximize()
 
 
+class OneLineListItemAligned(OneLineListItem):
+    """OneLineListItem that allows horizontal alignment"""
+
+    def __init__(self, halign, **kwargs):
+        super(OneLineListItemAligned, self).__init__(**kwargs)
+        self.ids._lbl_primary.halign = halign
+        if halign == "right":
+            self.md_bg_color = Colors.get_kivy_color("primary_bg_text")
+
+
 class ChatMessagesScreen(MDScreen):
     """Class representing a chat screen."""
 
@@ -143,15 +153,21 @@ class ChatMessagesScreen(MDScreen):
             self.disable_chat_input = True
             self.app.send_data(value=msg_data)
 
-    def add_message(self, message: str, text_color: list, clear_input: bool = False):
+    def add_message(
+        self,
+        message: str,
+        text_color: list,
+        halign: str = "left",
+        clear_input: bool = False,
+    ):
         """Adds a received message to the screen."""
         if clear_input:
             message = self.ids["chat_input"].text
             self.ids["chat_input"].text = ""
 
         self.ids["chat_list"].add_widget(
-            OneLineListItem(
-                text=message, theme_text_color="Custom", text_color=text_color
+            OneLineListItemAligned(
+                halign, text=message, theme_text_color="Custom", text_color=text_color
             )
         )
 

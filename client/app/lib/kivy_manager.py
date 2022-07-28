@@ -179,7 +179,10 @@ class ClientUI(MDApp):
                     # add message to self screen only when we get confirmation from server
                     screen = chats_screen_manager.get_screen(reply["room_id"])
                     screen.add_message(
-                        "", Colors.get_kivy_color("text_medium"), clear_input=True
+                        "",
+                        Colors.get_kivy_color("text_medium"),
+                        clear_input=True,
+                        halign="right",
                     )
                     screen.disable_chat_input = False
 
@@ -206,6 +209,7 @@ class ClientUI(MDApp):
                                     screen.add_message(
                                         message["message"],
                                         Colors.get_kivy_color("text_medium"),
+                                        halign="right",
                                     )
                                 else:
                                     screen.add_message(
