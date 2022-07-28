@@ -82,6 +82,7 @@ class User(object):
                                     {"type": "user.login.success", "data": user_data}
                                 )
                                 self.logged_in = True
+                                self.username = request["username"]
                                 return user_data["user_id"]
                     else:
                         await self.websocket.send_json(
@@ -115,6 +116,8 @@ class User(object):
                                 "message": "username already exists",
                             }
                         )
+            except KeyError:
+                logger.info("Wrong dict sent by client")
             except json.JSONDecodeError:
                 logger.debug("Wrong json data sent from client")
 
@@ -151,11 +154,13 @@ class User(object):
                         )
                     elif request["type"] == "room.create":
                         room_id = self.db.create_room(
-                            request["user_id"], request["data"]
+                            request["user_id"], request["other_id"]
                         )
                         await self.websocket.send_json(
                             {"type": "room.create.success", "room_id": room_id}
                         )
                         self.db.save()
+            except KeyError:
+                logger.info(f"Wrong dict sent by {self.username}")
             except json.JSONDecodeError:
                 logger.debug(f"Wrong json data sent by {self.username}")
