@@ -76,6 +76,7 @@ class User(object):
                                 user_data["rooms"] = self.db.get_user_rooms(
                                     user_data["user_id"]
                                 )
+                                logger.info(f"{request['username']} logged in")
                                 await self.websocket.send_json(
                                     {"type": "user.login.success", "data": user_data}
                                 )
@@ -90,22 +91,34 @@ class User(object):
                             }
                         )
                 elif request["type"] == "user.register":
-                    user_id = self.db.create_user(
-                        request["username"], request["password"]
-                    )
-                    user_data["user_id"] = user_id
-                    await self.websocket.send_json(
-                        {
-                            "type": "user.register.success",
-                            "data": user_data,
-                            "message": "registered succesfully",
-                        }
-                    )
+                    username_exists = self.db.does_username_exist(request["username"])
+                    if not username_exists:
+                        user_id = self.db.create_user(
+                            request["username"], request["password"]
+                        )
+                        user_data["user_id"] = user_id
+                        logger.info(f"account {request['username']} has been created")
+                        self.username = request["username"]
+                        await self.websocket.send_json(
+                            {
+                                "type": "user.register.success",
+                                "data": user_data,
+                                "message": "registered succesfully",
+                            }
+                        )
+                    else:
+                        await self.websocket.send_json(
+                            {
+                                "type": "user.register.rejected",
+                                "data": None,
+                                "message": "username already exists",
+                            }
+                        )
             except json.JSONDecodeError:
-                logger.debug("wrong json sent")
+                logger.debug("Wrong json data sent from client")
 
     @websocket_connection
-    async def handle_user(self, user_id):
+    async def handle_user(self, user_id: str) -> None:
         """Handles requests from a logged-in user"""
         while not self.close:
             try:
@@ -144,4 +157,4 @@ class User(object):
                         )
                         self.db.save()
             except json.JSONDecodeError:
-                logger.debug(f"Wrong json data sent by {user_id}")
+                logger.debug(f"Wrong json data sent by {self.username}")
