@@ -202,20 +202,23 @@ class ClientUI(MDApp):
                             )
                             other_id = self.get_other_user_id(room_id)
                             self.add_chat_screen(room_id, str(other_id), other_username)
+                            msg = None
+                            screen: ui.ChatMessagesScreen
+                            screen = chats_screen_manager.get_screen(room_id)
                             for message in room["messages"]:
-                                screen: ui.ChatMessagesScreen
-                                screen = chats_screen_manager.get_screen(room_id)
                                 if message["sender"] == str(self.user_id):
-                                    screen.add_message(
+                                    msg = screen.add_message(
                                         message["message"],
                                         Colors.get_kivy_color("text_medium"),
                                         halign="right",
                                     )
                                 else:
-                                    screen.add_message(
+                                    msg = screen.add_message(
                                         message["message"],
                                         Colors.get_kivy_color("text_dark"),
                                     )
+                            if msg:
+                                screen.scroll_to_message(msg)
 
                         self.login = True
                 case "user.login.rejected":

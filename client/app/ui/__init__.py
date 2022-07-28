@@ -4,6 +4,7 @@ from kivy import Logger
 from kivy.core.window import Window
 from kivy.properties import BooleanProperty
 from kivy.uix.screenmanager import ScreenManager
+from kivy.uix.scrollview import ScrollView
 from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
 from kivymd.uix.button import BaseButton
@@ -159,17 +160,23 @@ class ChatMessagesScreen(MDScreen):
         text_color: list,
         halign: str = "left",
         clear_input: bool = False,
-    ):
+    ) -> OneLineListItemAligned:
         """Adds a received message to the screen."""
         if clear_input:
             message = self.ids["chat_input"].text
             self.ids["chat_input"].text = ""
 
-        self.ids["chat_list"].add_widget(
-            OneLineListItemAligned(
-                halign, text=message, theme_text_color="Custom", text_color=text_color
-            )
+        chat_message = OneLineListItemAligned(
+            halign, text=message, theme_text_color="Custom", text_color=text_color
         )
+        self.ids["chat_list"].add_widget(chat_message)
+        return chat_message
+
+    def scroll_to_message(self, widget: OneLineListItemAligned):
+        """Scrolls the messages view to the specified message"""
+        list_scroll_view: ScrollView
+        list_scroll_view = self.ids["list_scroll_view"]
+        list_scroll_view.scroll_to(widget)
 
     def on_disable_chat_input(self, instance, value):
         """Fired every time disable_chat_input changes value"""
