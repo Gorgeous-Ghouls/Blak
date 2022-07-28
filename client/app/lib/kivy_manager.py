@@ -310,7 +310,7 @@ class ClientUI(MDApp):
         request_data = {
             "type": "room.create",
             "user_id": str(self.user_id),
-            "data": str(user_id),
+            "other_id": str(user_id),
         }
 
         await self.send_data_wrapper(request_data)
