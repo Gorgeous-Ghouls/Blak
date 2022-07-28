@@ -181,9 +181,6 @@ class ClientUI(MDApp):
                         self.rooms = data["rooms"]
 
                         # add user profile button
-                        Logger.info(
-                            f'{self.root.ids["app_screen_manager"].get_screen("app").children[0].ids}'
-                        )
                         if Window.custom_titlebar:
                             self.root.ids["titlebar"].ids["profile_button"].bind(
                                 on_release=ui.Dialog(
