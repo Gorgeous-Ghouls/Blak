@@ -144,13 +144,18 @@ class User(object):
                                     "type": "msg.recv",
                                     "message_id": message_id,
                                     "user_id": user_id,
+                                    "sender_username": self.username,
                                     "data": request["data"],
                                     "room_id": request["room_id"],
                                     "timestamp": request["timestamp"],
                                 }
                             )
                         await self.websocket.send_json(
-                            {"type": "msg.sent", "message_id": message_id}
+                            {
+                                "type": "msg.sent",
+                                "message_id": message_id,
+                                "room_id": request["room_id"],
+                            }
                         )
                     elif request["type"] == "room.create":
                         other_username = None

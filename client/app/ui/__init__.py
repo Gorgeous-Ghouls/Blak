@@ -120,6 +120,8 @@ class TitleBar(MDFloatLayout):
 class ChatMessagesScreen(MDScreen):
     """Class representing a chat screen."""
 
+    disable_chat_input: BooleanProperty(False)
+
     def __init__(self, other_user: str, **kwargs):
         self.other_user = other_user
         super(ChatMessagesScreen, self).__init__(**kwargs)
@@ -128,7 +130,7 @@ class ChatMessagesScreen(MDScreen):
         self.app: ClientUI = MDApp.get_running_app()
         self.times_validated = 0
 
-    def send_message(self, message: str, message_input=None):
+    def send_message(self, message: str):
         """Send message to server."""
         if message:
             msg_data = {
@@ -138,26 +140,27 @@ class ChatMessagesScreen(MDScreen):
                 "timestamp": str(datetime.now().timestamp()),
                 "room_id": self.name,
             }
-            self.add_message(message, Colors.text_medium.value)
+            self.disable_chat_input = True
             self.app.send_data(value=msg_data)
-            if message_input:
-                message_input.text = ""
 
-    def add_message(self, message: str, text_color: list):
+    def add_message(self, message: str, text_color: list, clear_input: bool = False):
         """Adds a received message to the screen."""
-        # {
-        #     "type": "msg.recv",
-        #     "message_id": message_id,
-        #     "user_id": user_id,
-        #     "data": request["data"],
-        #     "room_id": request["room_id"],
-        #     "timestamp": request["timestamp"],
-        # }
+        if clear_input:
+            message = self.ids["chat_input"].text
+            self.ids["chat_input"].text = ""
+
         self.ids["chat_list"].add_widget(
             OneLineListItem(
                 text=message, theme_text_color="Custom", text_color=text_color
             )
         )
+
+    def on_disable_chat_input(self, instance, value):
+        """Fired every time disable_chat_input changes value"""
+        if value:
+            self.ids["chat_input"].disabled = True
+        else:
+            self.ids["chat_input"].disabled = True
 
 
 class NewChatInputFields(MDGridLayout):
