@@ -1,6 +1,7 @@
 #:kivy 2.1.0
 
 #:import Colors app.utils.Colors
+#:import ui app.ui
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 #:import pyperclip pyperclip
 <Dialog>:
@@ -85,12 +86,22 @@ MDBoxLayout:
                             text_color:  Colors.get_kivy_color("accent_bg_text")
                             text: "Add Chat"
                             on_release: app.show_add_chat_dialog()
-                        MDFlatButton:
-                            size_hint: 1,1
-                            theme_text_color: "Custom"
-                            text_color:  Colors.get_kivy_color("accent_bg_text")
-                            text: "Logout - " + app.username
-                            on_release: app.do_logout()
+                        MDGridLayout:
+                            adaptive_height: True
+                            id: bottom_holder
+                            rows:1
+                            MDFlatButton:
+                                size_hint: 1,1
+                                theme_text_color: "Custom"
+                                text_color:  Colors.get_kivy_color("accent_bg_text")
+                                text: "Profile"
+                                on_release: ui.Dialog(title="Profile",type="custom",content_cls=ui.ProfileDialogContent()).open()
+                            MDFlatButton:
+                                size_hint: 1,1
+                                theme_text_color: "Custom"
+                                text_color:  Colors.get_kivy_color("accent_bg_text")
+                                text: "Logout"
+                                on_release: app.do_logout()
 
 
                 ScreenManager:
