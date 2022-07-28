@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "blak"
-version = "0.1.0"
+version = "1.0.0"
 description = "Server for Blak chat client"
 authors = ["p0lygun <solankivibhakar82@mail.com>"]  # todo: all team members add themselves
 license = "MIT"

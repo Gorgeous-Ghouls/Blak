@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Blak"
-version = "0.2.0"
+version = "1.0.0"
 description = "An uncompromising chat client made in python \nA chat client that has many features that help the user in getting a experience they never had before"
 authors = ["p0lygun <solankivibhakar82@mail.com>"]  # todo: all team members add themselves
 license = "MIT"
