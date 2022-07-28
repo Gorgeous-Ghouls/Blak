@@ -153,11 +153,18 @@ class User(object):
                             {"type": "msg.sent", "message_id": message_id}
                         )
                     elif request["type"] == "room.create":
+                        other_username = None
+                        if db_data := self.db.get_user(request["other_id"]):
+                            other_username = db_data["username"]
                         room_id = self.db.create_room(
                             request["user_id"], request["other_id"]
                         )
                         await self.websocket.send_json(
-                            {"type": "room.create.success", "room_id": room_id}
+                            {
+                                "type": "room.create.success",
+                                "room_id": room_id,
+                                "other_username": other_username,
+                            }
                         )
                         self.db.save()
             except KeyError:

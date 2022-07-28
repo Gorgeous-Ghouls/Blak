@@ -68,6 +68,10 @@ class DbManager:
             self.rooms[room_id] = {
                 "room_id": room_id,
                 "users": [sender_id, receiver_id],
+                "usernames": [
+                    self.get_user(sender_id)["username"],
+                    self.get_user(receiver_id)["username"],
+                ],
                 "messages": [],
             }
             return room_id

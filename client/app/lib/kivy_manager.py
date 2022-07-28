@@ -174,13 +174,17 @@ class ClientUI(MDApp):
                         self.username = data["username"]
                         self.rooms = data["rooms"]
                         for room in self.rooms:
-                            other_id = room["room_id"].replace(str(self.user_id), "")
-                            self.add_chat_screen(room["room_id"], str(other_id))
+                            room_id = room["room_id"]
+                            other_username = next(
+                                username
+                                for username in room["usernames"]
+                                if username != self.username
+                            )
+                            other_id = self.get_other_user_id(room_id)
+                            self.add_chat_screen(room_id, str(other_id), other_username)
                             for message in room["messages"]:
                                 screen: ui.ChatMessagesScreen
-                                screen = chats_screen_manager.get_screen(
-                                    room["room_id"]
-                                )
+                                screen = chats_screen_manager.get_screen(room_id)
                                 if message["sender"] == str(self.user_id):
                                     screen.add_message(
                                         message["message"],
@@ -220,9 +224,12 @@ class ClientUI(MDApp):
                     self.login_data_sent = False
 
                 case "room.create.success":
+                    room_id: str
                     if room_id := reply["room_id"]:
                         self.add_chat_screen(
-                            room_id, reply["other_id"]
+                            room_id,
+                            self.get_other_user_id(room_id),
+                            reply["other_username"],
                         ).current = room_id
                         self.dismiss_top_popup()
 
@@ -391,15 +398,24 @@ class ClientUI(MDApp):
         if isinstance(self.root_window.children[0], ui.Dialog):
             self.root_window.children[0].dismiss()
 
-    def add_chat_screen(self, room_id: str, other_user: str) -> ScreenManager:
+    def add_chat_screen(
+        self, room_id: str, other_user: str, other_username: str
+    ) -> ScreenManager:
         """Adds chat and its screen to the app"""
         chats_screen: ScreenManager
         chats_screen = self.root.ids["chats_screen_manager"]
         if not chats_screen.has_screen(room_id):
             self.root.ids["chat_list_container"].add_widget(
-                ui.ChatItem(username=room_id, custom_id=room_id)
+                ui.ChatItem(username=other_username, custom_id=room_id)
             )
             chats_screen.add_widget(
                 ui.ChatMessagesScreen(other_user=other_user, name=room_id)
             )
         return chats_screen
+
+    def get_other_user_id(self, room_id: str) -> str:
+        """Returns user id of other user in a chat
+
+        :param room_id id of the room to get the other user from
+        """
+        return room_id.replace(str(self.user_id), "")
