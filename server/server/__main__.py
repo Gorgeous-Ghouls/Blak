@@ -23,7 +23,9 @@ def main():
     logger.add(sys.stderr, level=logging_level)
 
     ensure_files()
-    uvicorn.run("server.app:app", port=8000, log_level=logging_level.lower())
+    uvicorn.run(
+        "server.app:app", host="localhost", port=8000, log_level=logging_level.lower()
+    )
 
 
 if __name__ == "__main__":
