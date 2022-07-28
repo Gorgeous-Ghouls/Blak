@@ -4,7 +4,7 @@ from fastapi import FastAPI, WebSocket
 
 from .managers import ConnectionManager, DbManager
 
-app = FastAPI(debug=True)
+app = FastAPI()
 
 db = DbManager("server/users.json", "server/rooms.json")
 connections = ConnectionManager(db)

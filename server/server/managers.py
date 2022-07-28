@@ -41,6 +41,14 @@ class DbManager:
         else:
             return self.users
 
+    def does_username_exist(self, username: str) -> bool:
+        """Checks for user with same username"""
+        users = self.get_user()
+        for i in users.values():
+            if i["username"] == username:
+                return True
+        return False
+
     def get_user_rooms(self, user_id: str) -> List:
         """Fetches the room data for a user from Database"""
         selected_rooms = []
