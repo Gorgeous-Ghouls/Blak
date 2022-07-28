@@ -16,17 +16,22 @@
 
 
     MDGridLayout:
+        id: right_container
         rows: 1
         pos_hint: {'right': 1}
         center_y: root.center_y
         adaptive_width: True
-        spacing: "5dp"
+        MDIconButton:
+            draggable: False
+            id: profile_button
+            icon: "account-circle"
+            icon_size: "15sp"
+
         MDLabel:
             id: connection_status_label
             adaptive_width: True
             text: app.connection_status
             color: [1,0,0,1]
-            halign: 'right'
         MDBoxLayout:
             draggable: False
             adaptive_width: True
