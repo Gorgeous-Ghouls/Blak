@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import sys
 import traceback
 from typing import Any, TypedDict
@@ -7,6 +8,7 @@ from uuid import UUID
 
 import websockets
 from app import ui
+from dotenv import load_dotenv
 from kivy import Logger
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -23,6 +25,7 @@ from kivymd.uix.textfield import MDTextField
 
 from ..utils import Colors, app_dir
 
+load_dotenv()
 Window.borderless = True
 Window.custom_titlebar = True
 
@@ -137,7 +140,9 @@ class ClientUI(MDApp):
                     )
             if connection_closed:
                 try:
-                    self.ws = await websockets.connect("ws://localhost:8000/ws")
+                    self.ws = await websockets.connect(
+                        f"ws://{os.getenv('WEBSOCKET_HOST', 'localhost:8000')}/ws"
+                    )
                     await self.connection_established()
                     connection_closed = False
                 except (OSError, asyncio.exceptions.CancelledError):
