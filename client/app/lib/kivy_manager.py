@@ -93,6 +93,7 @@ class ClientUI(MDApp):
 
     def on_start(self):
         """Called just before the app window is shown"""
+        Logger.info(f"ws host: {os.getenv('WEBSOCKET_HOST', 'localhost')}")
         if Window.custom_titlebar:
             self.root.ids["titlebar"]: ui.TitleBar
             Clock.schedule_once(
@@ -159,7 +160,7 @@ class ClientUI(MDApp):
         # todo complete data handling
         try:
             reply = json.loads(reply)
-            Logger.info(f"hrd: {reply}")
+            Logger.debug(f"hrd: {reply}")
             chats_screen_manager: ScreenManager
             chats_screen_manager = self.root.ids["chats_screen_manager"]
             match reply["type"]:
@@ -258,7 +259,7 @@ class ClientUI(MDApp):
             try:
 
                 data = json.dumps(data)
-                Logger.info(f"sdw: {data}")
+                Logger.debug(f"sdw: {data}")
             except json.JSONDecodeError:
                 Logger.warn(f"Wrong Data send {type(data)}")
 
