@@ -36,6 +36,7 @@ class User(object):
     connections: managers.ConnectionManager
     logged_in: bool
     session_id: str
+    username: str
 
     @classmethod
     async def create(
@@ -103,7 +104,7 @@ class User(object):
                             {
                                 "type": "user.register.success",
                                 "data": user_data,
-                                "message": "registered succesfully",
+                                "message": "registered successfully",
                             }
                         )
                     else:
