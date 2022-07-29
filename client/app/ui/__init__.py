@@ -80,8 +80,6 @@ class ChatItem(MDCard):
 class TitleBar(MDFloatLayout):
     """Custom TitleBar for the app"""
 
-    md_bg_color = Colors.accent_bg
-    button_bg = Colors.primary_bg
     button_size = "15sp"
 
     def __init__(self, **kwargs):

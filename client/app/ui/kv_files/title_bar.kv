@@ -4,7 +4,7 @@
     size_hint: 1,None
     height: dp(30)
     pos_hint: {'top':1}
-
+    md_bg_color: Colors.accent_bg
     MDLabel:
         size: self.texture_size
         center_y: root.center_y
@@ -36,7 +36,7 @@
             draggable: False
             adaptive_width: True
             orientation: 'horizontal'
-            md_bg_color: root.button_bg
+            md_bg_color: Colors.primary_bg
             MDIconButton:
                 icon: "window-maximize"
                 icon_size: root.button_size
