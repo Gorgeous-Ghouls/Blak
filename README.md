@@ -2,6 +2,19 @@
     <img src='https://raw.githubusercontent.com/Gorgeous-Ghouls/gorgeous-ghouls.github.io/gh-pages/static/images/red_tk_cropped.jpg' alt="logo" width="300"/>
 </p>
 
+<p align="middle">
+    <img src='https://img.shields.io/badge/code%20style-black-black?style=for-the-badge' alt='code style' />     
+    <img src='https://img.shields.io/github/languages/code-size/Gorgeous-Ghouls/Blak?color=%20%236A3660&style=for-the-badge' alt='size' />     
+    <img src='https://img.shields.io/badge/license-mit-5184EE?style=for-the-badge' alt='license' />     
+    <img src='https://img.shields.io/github/workflow/status/Gorgeous-Ghouls/blak/Lint?color=%20%2326FDC9&label=lint&style=for-the-badge' alt='linter' />       
+    <img src='https://img.shields.io/github/repo-size/Gorgeous-Ghouls/Blak?style=for-the-badge' alt='size' />    
+</p>
+
+<p align="middle">
+    <img src='https://img.shields.io/github/issues-closed-raw/gorgeous-ghouls/blak?style=for-the-badge' alt='issues-closed' />     
+    <img src='https://img.shields.io/github/issues-pr-closed/gorgeous-ghouls/blak?style=for-the-badge' alt='pr-closed' />     
+</p>
+
 
 # Blak
 ### An uncompromising chat client made in python
