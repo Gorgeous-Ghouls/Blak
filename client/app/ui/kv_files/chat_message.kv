@@ -1,7 +1,7 @@
 #:kivy 2.1.0
 
 #:import Colors app.utils.Colors
-#:import get_color_from_hex kivy.utils.get_color_from_hex
+
 <ChatMessagesScreen>: # name should be equal to custom-id of the other user
     MDGridLayout:
         cols:1
@@ -18,7 +18,7 @@
             adaptive_height: True
             rows: 1
             MDBoxLayout:
-                md_bg_color: Colors.get_kivy_color("accent_bg")
+                md_bg_color: Colors.accent_bg
                 radius: [5, 5, 0, 0 ]
                 padding: [5,0,0,5]
                 MDTextField:
