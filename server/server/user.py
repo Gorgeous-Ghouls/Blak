@@ -172,6 +172,21 @@ class User(object):
                             }
                         )
                         self.db.save()
+                    elif request["type"] == "msg.typing.send":
+                        roommate_websocket = self.connections.is_user_online(
+                            request["other_id"]
+                        )
+                        if roommate_websocket:
+                            await roommate_websocket.send_json(
+                                {
+                                    "type": "msg.typing.recv",
+                                    "user_id": user_id,
+                                    "sender_username": self.username,
+                                    "data": request["data"],
+                                    "room_id": request["room_id"],
+                                    "timestamp": request["timestamp"],
+                                }
+                            )
             except KeyError:
                 logger.info(f"Wrong dict sent by {self.username}")
             except json.JSONDecodeError:
