@@ -50,7 +50,7 @@ class ClientUI(MDApp):
     ws: websockets.WebSocketClientProtocol = None
     login: bool = BooleanProperty(False)
     username: str = StringProperty()
-    user_id: UUID = None
+    user_id: str = StringProperty()
     login_helper_text: str = StringProperty()
     login_data_sent: bool = BooleanProperty(
         False
@@ -93,6 +93,7 @@ class ClientUI(MDApp):
 
     def on_start(self):
         """Called just before the app window is shown"""
+        Logger.info(f"ws host: {os.getenv('WEBSOCKET_HOST', 'localhost')}")
         if Window.custom_titlebar:
             self.root.ids["titlebar"]: ui.TitleBar
             Clock.schedule_once(
@@ -159,7 +160,7 @@ class ClientUI(MDApp):
         # todo complete data handling
         try:
             reply = json.loads(reply)
-            Logger.info(f"hrd: {reply}")
+            Logger.debug(f"hrd: {reply}")
             chats_screen_manager: ScreenManager
             chats_screen_manager = self.root.ids["chats_screen_manager"]
             match reply["type"]:
@@ -189,10 +190,20 @@ class ClientUI(MDApp):
                 case "user.login.success":
                     if data := reply["data"]:  # login Successful
                         self.title += f" {data['user_id']}"
-                        self.user_id = UUID(data["user_id"])
+                        self.user_id = data["user_id"]
 
                         self.username = data["username"]
                         self.rooms = data["rooms"]
+
+                        # add user profile button
+                        if Window.custom_titlebar:
+                            self.root.ids["titlebar"].ids["profile_button"].bind(
+                                on_release=ui.Dialog(
+                                    title="Profile",
+                                    type="custom",
+                                    content_cls=ui.ProfileDialogContent(),
+                                ).open
+                            )
                         for room in self.rooms:
                             room_id = room["room_id"]
                             other_username = next(
@@ -277,7 +288,7 @@ class ClientUI(MDApp):
             try:
 
                 data = json.dumps(data)
-                Logger.info(f"sdw: {data}")
+                Logger.debug(f"sdw: {data}")
             except json.JSONDecodeError:
                 Logger.warn(f"Wrong Data send {type(data)}")
 
@@ -368,7 +379,7 @@ class ClientUI(MDApp):
     def do_logout(self, close_connection: bool = True):
         """Reset User info and go back to log in screen"""
         self.username = ""
-        self.user_id = UUID(int=0)
+        self.user_id = ""
         self.login = False
         if close_connection:
             asyncio.create_task(self.ws.close())

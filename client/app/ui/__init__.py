@@ -26,7 +26,6 @@ class Dialog(MDDialog):
     def __init__(self, *args, **kwargs):
         if title := kwargs.get("title", None):
             kwargs["title"] = f"[color={Colors.accent_bg_text.value}]{title}[/color]"
-
         super().__init__(**kwargs)
 
     def on_active(self, instance, active):
@@ -188,5 +187,11 @@ class ChatMessagesScreen(MDScreen):
 
 class NewChatInputFields(MDGridLayout):
     """Fields for when adding a new chat"""
+
+    pass
+
+
+class ProfileDialogContent(MDGridLayout):
+    """Content for User Profile Dialog"""
 
     pass

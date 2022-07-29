@@ -14,6 +14,7 @@ Kivy = "^2.1.0"
 websockets = "^10.3"
 kivymd = {git = "https://github.com/kivymd/KivyMD.git"}
 python-dotenv = "^0.20.0"
+pyperclip = "^1.8.2"
 
 [tool.poetry.dev-dependencies]
 # Base tools
