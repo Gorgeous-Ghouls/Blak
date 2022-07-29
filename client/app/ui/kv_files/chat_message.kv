@@ -21,6 +21,7 @@
                 md_bg_color: Colors.accent_bg
                 radius: [5, 5, 0, 0 ]
                 padding: [5,0,0,5]
+                adaptive_height: True
                 MDTextField:
                     id : chat_input
 
@@ -30,8 +31,8 @@
 
                     multiline: False
 
-                    text_color_normal: Colors.get_kivy_color("text_dark")
-                    text_color_focus: Colors.get_kivy_color("text_medium")
-                    hint_text_color_normal: Colors.get_kivy_color("primary_bg")
-                    hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
-                    line_color_focus: Colors.get_kivy_color("text_dark")
+                    text_color_normal: Colors.text_dark
+                    text_color_focus: Colors.text_medium
+                    hint_text_color_normal: Colors.primary_bg
+                    hint_text_color_focus: Colors.accent_bg_text
+                    line_color_focus: Colors.text_dark
