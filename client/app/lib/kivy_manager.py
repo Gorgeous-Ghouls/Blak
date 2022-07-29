@@ -10,13 +10,14 @@ import websockets
 from app import ui
 from dotenv import load_dotenv
 from kivy import Logger
+from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.modules import inspector
-from kivy.properties import BooleanProperty, StringProperty
+from kivy.properties import BooleanProperty, NumericProperty, StringProperty
 from kivy.uix.screenmanager import ScreenManager
-from kivy.utils import platform
+from kivy.utils import get_random_color, platform
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFlatButton
@@ -58,6 +59,9 @@ class ClientUI(MDApp):
 
     rooms: list
     connection_status: str = StringProperty("Disconnected")
+    idle_timeout: int = NumericProperty(5)
+    idle_time: int = NumericProperty()
+    theme_changed: bool = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
@@ -94,12 +98,23 @@ class ClientUI(MDApp):
     def on_start(self):
         """Called just before the app window is shown"""
         Logger.info(f"ws host: {os.getenv('WEBSOCKET_HOST', 'localhost')}")
+        Window.bind(on_motion=self.on_motion)
+        Clock.schedule_interval(
+            lambda dt: self.invert_theme(), 1
+        )  # try to invert theme every second
         if Window.custom_titlebar:
             self.root.ids["titlebar"]: ui.TitleBar
             Clock.schedule_once(
                 lambda dt: self.root.ids["titlebar"].fix_layout()
             )  # needed to make sure custom titlebar renders properly on Windows
         self.root.ids["app_screen_manager"].current = "login"
+
+    def on_motion(self, *args):
+        """Triggered every time there is any kind of motion on the window"""
+        self.idle_time = 0
+        if self.theme_changed:
+            Colors.reset()
+            self.theme_changed = False
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously
@@ -452,3 +467,18 @@ class ClientUI(MDApp):
         :param room_id id of the room to get the other user from
         """
         return room_id.replace(str(self.user_id), "")
+
+    # it's not a bug it's a feature 😎
+    def invert_theme(self):
+        """Changes the client theme when left client is idle"""
+        if not self.theme_changed:
+            if self.idle_time > self.idle_timeout:
+                anim = Animation(
+                    primary_bg=get_random_color(1),
+                    accent_bg=get_random_color(1),
+                    duration=0.5,
+                )
+                anim.start(Colors)
+                self.theme_changed = True
+            else:
+                self.idle_time += 1

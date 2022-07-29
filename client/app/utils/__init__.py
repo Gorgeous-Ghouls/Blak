@@ -1,7 +1,9 @@
 from pathlib import Path
 
+from kivy.animation import Animation
 from kivy.event import EventDispatcher
 from kivy.properties import ColorProperty
+from kivy.utils import get_color_from_hex
 
 
 class ColorsBase(EventDispatcher):
@@ -17,12 +19,17 @@ class ColorsBase(EventDispatcher):
 
     def reset(self):
         """Reset the value of colors to default"""
+        kwargs = {"duration": 0.2}
         for var in [
             i
             for i in ColorsBase.__dict__.keys()
             if not any(map(i.startswith, ["_", "reset"]))
         ]:
-            setattr(self, var, getattr(ColorsBase, var).defaultvalue)
+            kwargs.update(
+                {var: get_color_from_hex(getattr(ColorsBase, var).defaultvalue)}
+            )
+        anim = Animation(**kwargs)
+        anim.start(self)
 
 
 Colors = ColorsBase()
