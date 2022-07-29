@@ -35,10 +35,3 @@
                     hint_text_color_normal: Colors.get_kivy_color("primary_bg")
                     hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
                     line_color_focus: Colors.get_kivy_color("text_dark")
-                    on_text_validate: root.send_message(chat_input.text)
-
-            MDIconButton:
-                icon: "send"
-                theme_icon_color: "Custom"
-                icon_color: Colors.get_kivy_color("text_dark")
-                on_release: root.send_message(chat_input.text)
