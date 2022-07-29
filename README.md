@@ -1,7 +1,5 @@
 <p align="middle">
-
     <img src='https://raw.githubusercontent.com/Gorgeous-Ghouls/gorgeous-ghouls.github.io/gh-pages/static/images/red_tk_cropped.jpg' alt="logo" width="300"/>
-
 </p>
 
 
