@@ -135,7 +135,16 @@ class ChatMessagesScreen(MDScreen):
         from ..lib.kivy_manager import ClientUI
 
         self.app: ClientUI = MDApp.get_running_app()
+        Window.bind(on_key_down=self._on_keyboard_down)
         self.times_validated = 0
+
+    def _on_keyboard_down(self, instance, keyboard, keycode, text, modifiers):
+        """Event press enter twice or use shift + enter to send message."""
+        if self.ids.chat_input.focus and (keycode == 40 or keycode == 225):
+            self.times_validated += 1
+        if self.times_validated == 2:
+            self.send_message(self.ids.chat_input.text)
+            self.times_validated = 0
 
     def send_message(self, message: str):
         """Send message to server."""
