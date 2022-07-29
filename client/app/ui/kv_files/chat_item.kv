@@ -1,7 +1,7 @@
 #:import Colors app.utils.Colors
 
 <ChatItemLabel@MDLabel>:
-    color: Colors.get_kivy_color("text_medium")
+    color: Colors.text_medium
 
 
 <ChatItem>:
@@ -10,7 +10,7 @@
     ripple_behavior: True
     size_hint: 1,None
     height: main_box.height
-    md_bg_color: Colors.get_kivy_color("accent_bg")
+    md_bg_color: Colors.accent_bg
     MDBoxLayout:
         orientation: "vertical"
         adaptive_height: True
@@ -27,16 +27,16 @@
                 #:set font_size "12sp"
                 padding: "10dp", 0, "10dp", 0
                 ChatItemLabel:
-                    color: Colors.get_kivy_color("accent_bg_text")
+                    color: Colors.accent_bg_text
                     text: root.last_seen
                     font_size: font_size
                     halign: 'left'
                     valign: 'bottom'
                 ChatItemLabel:
-                    color: Colors.get_kivy_color("accent_bg_text")
+                    color: Colors.accent_bg_text
                     text: root.msg_count
                     font_size: font_size
                     halign: 'right'
                     valign: 'bottom'
         MDSeparator:
-            color: Colors.get_kivy_color("primary_bg")
+            color: Colors.primary_bg
