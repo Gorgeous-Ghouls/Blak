@@ -5,7 +5,7 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 #:import pyperclip pyperclip
 <Dialog>:
-    md_bg_color: Colors.get_kivy_color("primary_bg")
+    md_bg_color: Colors.primary_bg
 <NewChatInputFields>:
     cols:1
     adaptive_height: True
@@ -15,11 +15,11 @@
 
         helper_text: ""
         helper_text_mode: "persistent"
-        text_color_normal: Colors.get_kivy_color("text_dark")
-        text_color_focus: Colors.get_kivy_color("text_medium")
-        hint_text_color_normal: Colors.get_kivy_color("primary_bg")
-        hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
-        line_color_focus: Colors.get_kivy_color("text_dark")
+        text_color_normal: Colors.text_dark
+        text_color_focus: Colors.text_medium
+        hint_text_color_normal: Colors.primary_bg
+        hint_text_color_focus: Colors.accent_bg_text
+        line_color_focus: Colors.text_dark
 
 <ProfileDialogContent>:
     cols: 1
@@ -28,24 +28,24 @@
     MDLabel:
         halign: 'center'
         text: app.username
-        color: Colors.get_kivy_color("text_medium")
+        color: Colors.text_medium
     MDFlatButton:
         size_hint: 1,1
         theme_text_color: "Custom"
         text: app.user_id
-        text_color: Colors.get_kivy_color("text_dark")
+        text_color: Colors.text_dark
         on_release: pyperclip.copy(self.text)
     MDLabel:
         halign: 'center'
         text: "Click on ID to copy"
         font_size: "12dp"
-        color: Colors.get_kivy_color("accent_bg_text")
+        color: Colors.accent_bg_text
 
 
 
 MDBoxLayout:
     orientation: 'vertical'
-    md_bg_color: get_color_from_hex(Colors.primary_bg.value)
+    md_bg_color: Colors.primary_bg
     TitleBar:
         id: titlebar
 
@@ -64,7 +64,7 @@ MDBoxLayout:
             name: "app"
             MDBoxLayout:
                 MDFloatLayout: # needed so that we always have background color
-                    md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                    md_bg_color: Colors.accent_bg
                     size_hint_x: 0.4
                     ScrollView:
                         do_scroll_x: False
@@ -74,16 +74,16 @@ MDBoxLayout:
                             size_hint: 1,None
                             height: self.minimum_height
                             spacing: dp(5)
-                            md_bg_color: get_color_from_hex(Colors.accent_bg.value)
+                            md_bg_color: Colors.accent_bg
                             # to add chat here use ChatItem class from UI
                     MDGridLayout:
                         cols:1
                         adaptive_height: True
-                        md_bg_color: Colors.get_kivy_color("primary_bg")
+                        md_bg_color: Colors.primary_bg
                         MDFlatButton:
                             size_hint: 1,1
                             theme_text_color: "Custom"
-                            text_color:  Colors.get_kivy_color("accent_bg_text")
+                            text_color:  Colors.accent_bg_text
                             text: "Add Chat"
                             on_release: app.show_add_chat_dialog()
                         MDGridLayout:
@@ -93,13 +93,13 @@ MDBoxLayout:
                             MDFlatButton:
                                 size_hint: 1,1
                                 theme_text_color: "Custom"
-                                text_color:  Colors.get_kivy_color("accent_bg_text")
+                                text_color:  Colors.accent_bg_text
                                 text: "Profile"
                                 on_release: ui.Dialog(title="Profile",type="custom",content_cls=ui.ProfileDialogContent()).open()
                             MDFlatButton:
                                 size_hint: 1,1
                                 theme_text_color: "Custom"
-                                text_color:  Colors.get_kivy_color("accent_bg_text")
+                                text_color:  Colors.accent_bg_text
                                 text: "Logout"
                                 on_release: app.do_logout()
 

@@ -1,11 +1,11 @@
 #:import Colors app.utils.Colors
 <LoginField@MDTextField>:
     helper_text_mode: "on_focus"
-    text_color_normal: Colors.get_kivy_color("text_dark")
-    text_color_focus: Colors.get_kivy_color("text_medium")
-    hint_text_color_normal: Colors.get_kivy_color("primary_bg")
-    hint_text_color_focus: Colors.get_kivy_color("accent_bg_text")
-    line_color_focus: Colors.get_kivy_color("text_dark")
+    text_color_normal: Colors.text_dark
+    text_color_focus: Colors.text_medium
+    hint_text_color_normal: Colors.primary_bg
+    hint_text_color_focus: Colors.accent_bg_text
+    line_color_focus: Colors.text_dark
 
 <LoginScreen>:
     size_hint: 1,1
@@ -17,7 +17,7 @@
         pos_hint: {'center_x': 0.5,'center_y': 0.5}
         spacing: "10dp"
         radius: 10
-        md_bg_color: Colors.get_kivy_color("accent_bg")
+        md_bg_color: Colors.accent_bg
 
         LoginField:
             id: username

@@ -5,7 +5,6 @@ from kivy.core.window import Window
 from kivy.properties import BooleanProperty
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.scrollview import ScrollView
-from kivy.utils import get_color_from_hex
 from kivymd.app import MDApp
 from kivymd.uix.button import BaseButton
 from kivymd.uix.card import MDCard
@@ -25,7 +24,7 @@ class Dialog(MDDialog):
 
     def __init__(self, *args, **kwargs):
         if title := kwargs.get("title", None):
-            kwargs["title"] = f"[color={Colors.accent_bg_text.value}]{title}[/color]"
+            kwargs["title"] = f"[color={Colors.accent_bg_text}]{title}[/color]"
         super().__init__(**kwargs)
 
     def on_active(self, instance, active):
@@ -81,8 +80,8 @@ class ChatItem(MDCard):
 class TitleBar(MDFloatLayout):
     """Custom TitleBar for the app"""
 
-    md_bg_color = get_color_from_hex(Colors.accent_bg.value)
-    button_bg = get_color_from_hex(Colors.primary_bg.value)
+    md_bg_color = Colors.accent_bg
+    button_bg = Colors.primary_bg
     button_size = "15sp"
 
     def __init__(self, **kwargs):
@@ -124,7 +123,7 @@ class OneLineListItemAligned(OneLineListItem):
         super(OneLineListItemAligned, self).__init__(**kwargs)
         self.ids._lbl_primary.halign = halign
         if halign == "right":
-            self.md_bg_color = Colors.get_kivy_color("primary_bg_text")
+            self.md_bg_color = Colors.primary_bg_text
 
 
 class ChatMessagesScreen(MDScreen):

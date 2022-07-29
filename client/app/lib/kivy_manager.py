@@ -173,15 +173,13 @@ class ClientUI(MDApp):
                         )
 
                     screen = chats_screen_manager.get_screen(reply["room_id"])
-                    screen.add_message(
-                        reply["data"], Colors.get_kivy_color("text_dark")
-                    )
+                    screen.add_message(reply["data"], Colors.text_dark)
                 case "msg.sent":
                     # add message to self screen only when we get confirmation from server
                     screen = chats_screen_manager.get_screen(reply["room_id"])
                     screen.add_message(
                         "",
-                        Colors.get_kivy_color("text_medium"),
+                        Colors.text_medium,
                         clear_input=True,
                         halign="right",
                     )
@@ -220,13 +218,13 @@ class ClientUI(MDApp):
                                 if message["sender"] == str(self.user_id):
                                     msg = screen.add_message(
                                         message["message"],
-                                        Colors.get_kivy_color("text_medium"),
+                                        Colors.text_medium,
                                         halign="right",
                                     )
                                 else:
                                     msg = screen.add_message(
                                         message["message"],
-                                        Colors.get_kivy_color("text_dark"),
+                                        Colors.text_dark,
                                     )
                             if msg:
                                 screen.scroll_to_message(msg)
@@ -319,7 +317,7 @@ class ClientUI(MDApp):
         if Window.custom_titlebar:
             self.root.ids["titlebar"].ids[
                 "connection_status_label"
-            ].color = Colors.get_kivy_color("accent_bg_text")
+            ].color = Colors.accent_bg_text
         else:
             self.set_window_title()
         self.login_data_sent = False
@@ -404,12 +402,12 @@ class ClientUI(MDApp):
                 MDFlatButton(
                     text="CANCEL",
                     theme_text_color="Custom",
-                    text_color=Colors.get_kivy_color("text_medium"),
+                    text_color=Colors.text_medium,
                 ),
                 MDFlatButton(
                     text="Add",
                     theme_text_color="Custom",
-                    text_color=Colors.get_kivy_color("text_medium"),
+                    text_color=Colors.text_medium,
                 ),
             ],
         )
