@@ -165,12 +165,27 @@ class ClientUI(MDApp):
             chats_screen_manager = self.root.ids["chats_screen_manager"]
             match reply["type"]:
                 case "msg.recv":
-                    if chats_screen_manager.has_screen(reply["room_id"]):
-                        screen: ui.ChatMessagesScreen
-                        screen = chats_screen_manager.get_screen(reply["room_id"])
-                        screen.add_message(
-                            reply["data"], Colors.get_kivy_color("text_dark")
+                    if not chats_screen_manager.has_screen(reply["room_id"]):
+                        self.add_chat_screen(
+                            reply["room_id"],
+                            self.get_other_user_id(reply["room_id"]),
+                            reply["sender_username"],
                         )
+
+                    screen = chats_screen_manager.get_screen(reply["room_id"])
+                    screen.add_message(
+                        reply["data"], Colors.get_kivy_color("text_dark")
+                    )
+                case "msg.sent":
+                    # add message to self screen only when we get confirmation from server
+                    screen = chats_screen_manager.get_screen(reply["room_id"])
+                    screen.add_message(
+                        "",
+                        Colors.get_kivy_color("text_medium"),
+                        clear_input=True,
+                        halign="right",
+                    )
+                    screen.disable_chat_input = False
 
                 case "user.login.success":
                     if data := reply["data"]:  # login Successful
@@ -198,19 +213,23 @@ class ClientUI(MDApp):
                             )
                             other_id = self.get_other_user_id(room_id)
                             self.add_chat_screen(room_id, str(other_id), other_username)
+                            msg = None
+                            screen: ui.ChatMessagesScreen
+                            screen = chats_screen_manager.get_screen(room_id)
                             for message in room["messages"]:
-                                screen: ui.ChatMessagesScreen
-                                screen = chats_screen_manager.get_screen(room_id)
                                 if message["sender"] == str(self.user_id):
-                                    screen.add_message(
+                                    msg = screen.add_message(
                                         message["message"],
                                         Colors.get_kivy_color("text_medium"),
+                                        halign="right",
                                     )
                                 else:
-                                    screen.add_message(
+                                    msg = screen.add_message(
                                         message["message"],
                                         Colors.get_kivy_color("text_dark"),
                                     )
+                            if msg:
+                                screen.scroll_to_message(msg)
 
                         self.login = True
                 case "user.login.rejected":
