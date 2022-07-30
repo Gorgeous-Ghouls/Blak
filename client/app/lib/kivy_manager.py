@@ -62,6 +62,10 @@ class ClientUI(MDApp):
     idle_timeout: int = NumericProperty(5)
     idle_time: int = NumericProperty()
     theme_changed: bool = BooleanProperty(False)
+    spam_time: int = NumericProperty(5)  # check for messages in the time frame (secs)
+    spam_count: int = NumericProperty(
+        5
+    )  # max number of message that one can send in spam_time
 
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)

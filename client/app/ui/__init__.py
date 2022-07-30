@@ -137,6 +137,7 @@ class ChatMessagesScreen(MDScreen):
         self.app: ClientUI = MDApp.get_running_app()
         Window.bind(on_key_down=self._on_keyboard_down)
         self.times_validated = 0
+        self.message_sent_spam = 0  # messages sent in spam_time
 
     def _on_keyboard_down(self, instance, keyboard, keycode, text, modifiers):
         """Event press enter twice or use shift + enter to send message."""
