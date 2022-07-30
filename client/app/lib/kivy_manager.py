@@ -174,6 +174,7 @@ class ClientUI(MDApp):
     async def handle_recv_data(self, reply: str):
         """Handles data sent by server"""
         # todo complete data handling
+        # todo discuss should we move this to a separate file ?
         try:
             reply = json.loads(reply)
             Logger.debug(f"hrd: {reply}")
@@ -197,8 +198,14 @@ class ClientUI(MDApp):
                         )
 
                     screen = chats_screen_manager.get_screen(reply["room_id"])
-                    screen.add_message(reply["data"], Colors.text_dark)
+                    screen.add_message(
+                        reply["data"],
+                        Colors.text_dark,
+                    )
                     screen.ids["typing"].text = ""
+                    ui.ChatItem.Items.get(reply["room_id"]).timestamp = float(
+                        reply["timestamp"]
+                    )
                 case "msg.sent":
                     # add message to self screen only when we get confirmation from server
                     screen = chats_screen_manager.get_screen(reply["room_id"])
@@ -239,6 +246,7 @@ class ClientUI(MDApp):
                             msg = None
                             screen: ui.ChatMessagesScreen
                             screen = chats_screen_manager.get_screen(room_id)
+                            last_msg_timestamp = None
                             for message in room["messages"]:
                                 if message["sender"] == str(self.user_id):
                                     msg = screen.add_message(
@@ -251,6 +259,13 @@ class ClientUI(MDApp):
                                         message["message"],
                                         Colors.text_dark,
                                     )
+                                    last_msg_timestamp = message["timestamp"]
+
+                            chat = ui.ChatItem.Items.get(room_id)
+                            if last_msg_timestamp:
+                                chat.timestamp = float(last_msg_timestamp)
+                            Clock.schedule_interval(chat.set_last_seen, 1)
+
                             if msg:
                                 screen.scroll_to_message(msg)
 

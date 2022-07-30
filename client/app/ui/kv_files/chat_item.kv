@@ -4,39 +4,41 @@
     color: Colors.text_medium
 
 
-<ChatItem>:
-    orientation: "vertical"
-#    focus_behavior: True
-    ripple_behavior: True
-    size_hint: 1,None
-    height: main_box.height
-    md_bg_color: Colors.accent_bg
-    MDBoxLayout:
-        orientation: "vertical"
-        adaptive_height: True
 
-        MDBoxLayout:
-            id: main_box
-            orientation: "vertical"
+<ChatItem>:
+    cols:1
+    adaptive_height: True
+    md_bg_color: Colors.accent_bg
+    MDGridLayout:
+        id: main_box
+        size_hint:1,None
+        height: "50dp"
+        cols: 1
+        ChatItemLabel:
+            size: self.texture_size
+            text: root.username
+            halign: 'center'
+        MDGridLayout:
+            rows: 1
             adaptive_height: True
+            #:set font_size "12sp"
+            padding: "10dp", 0, "10dp", 0
             ChatItemLabel:
-                size: self.texture_size
-                text: root.username
-                halign: 'center'
-            MDBoxLayout:
-                #:set font_size "12sp"
-                padding: "10dp", 0, "10dp", 0
-                ChatItemLabel:
-                    color: Colors.accent_bg_text
-                    text: root.last_seen
-                    font_size: font_size
-                    halign: 'left'
-                    valign: 'bottom'
-                ChatItemLabel:
-                    color: Colors.accent_bg_text
-                    text: root.msg_count
-                    font_size: font_size
-                    halign: 'right'
-                    valign: 'bottom'
-        MDSeparator:
-            color: Colors.primary_bg
+                adaptive_height: True
+                color: Colors.accent_bg_text
+                text: root.last_seen
+                font_size: font_size
+                halign: 'left'
+                valign: 'bottom'
+            ChatItemLabel:
+                adaptive_height: True
+                color: Colors.accent_bg_text
+                text: root.msg_count
+                font_size: font_size
+                halign: 'right'
+                valign: 'bottom'
+    MDBoxLayout:
+        size_hint_y: None
+        size_hint_x: 1
+        height: "2dp"
+        md_bg_color: Colors.primary_bg
