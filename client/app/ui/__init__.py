@@ -135,9 +135,14 @@ class ChatMessagesScreen(MDScreen):
         from ..lib.kivy_manager import ClientUI
 
         self.app: ClientUI = MDApp.get_running_app()
+        self.messages: dict[str, list[OneLineListItemAligned, ...]] = {
+            self.app.user_id: [],
+            self.other_user: [],
+        }
         Window.bind(on_key_down=self._on_keyboard_down)
         self.times_validated = 0
         self.message_sent_spam = 0  # messages sent in spam_time
+        self.allow_single_enter = True
 
     def _on_keyboard_down(self, instance, keyboard, keycode, text, modifiers):
         """Event press enter twice or use shift + enter to send message."""
@@ -156,7 +161,10 @@ class ChatMessagesScreen(MDScreen):
             self.app.reset_theme()
             self.app.send_data(value=data)
 
-        if self.times_validated == 2:
+        if self.allow_single_enter:
+            self.send_message(self.ids.chat_input.text)
+
+        elif self.times_validated == 2:
             self.send_message(self.ids.chat_input.text)
             self.times_validated = 0
 
@@ -189,6 +197,12 @@ class ChatMessagesScreen(MDScreen):
             halign, text=message, theme_text_color="Custom", text_color=text_color
         )
         self.ids["chat_list"].add_widget(chat_message)
+
+        if halign == "right":
+            self.messages[self.app.user_id].append(chat_message)
+        else:
+            self.messages[self.other_user].append(chat_message)
+
         return chat_message
 
     def scroll_to_message(self, widget: OneLineListItemAligned):
