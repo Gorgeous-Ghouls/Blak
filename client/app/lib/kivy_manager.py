@@ -257,10 +257,10 @@ class ClientUI(MDApp):
                                     )
                                     last_msg_timestamp = message["timestamp"]
 
+                            chat = ui.ChatItem.Items.get(room_id)
                             if last_msg_timestamp:
-                                chat = ui.ChatItem.Items.get(room_id)
                                 chat.timestamp = float(last_msg_timestamp)
-                                Clock.schedule_interval(chat.set_last_seen, 1)
+                            Clock.schedule_interval(chat.set_last_seen, 1)
 
                             if msg:
                                 screen.scroll_to_message(msg)
@@ -468,12 +468,7 @@ class ClientUI(MDApp):
             self.root_window.children[0].dismiss()
 
     def add_chat_screen(
-        self,
-        room_id: str,
-        other_user: str,
-        other_username: str,
-        last_seen: str = "Never",
-        msg_count: str = "69",
+        self, room_id: str, other_user: str, other_username: str
     ) -> ScreenManager:
         """Adds chat and its screen to the app"""
         chats_screen: ScreenManager
