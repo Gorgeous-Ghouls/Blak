@@ -111,10 +111,7 @@ class ClientUI(MDApp):
 
     def on_motion(self, *args):
         """Triggered every time there is any kind of motion on the window"""
-        self.idle_time = 0
-        if self.theme_changed:
-            Colors.reset()
-            self.theme_changed = False
+        self.reset_theme()
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously
@@ -179,6 +176,14 @@ class ClientUI(MDApp):
             chats_screen_manager: ScreenManager
             chats_screen_manager = self.root.ids["chats_screen_manager"]
             match reply["type"]:
+                case "msg.typing.recv":
+                    if (
+                        chats_screen_manager.current == reply["room_id"]
+                    ):  # only show typing on the active chat
+                        screen: ui.ChatMessagesScreen
+                        screen = chats_screen_manager.get_screen(reply["room_id"])
+                        screen.ids["typing"].text = reply["data"]
+
                 case "msg.recv":
                     if not chats_screen_manager.has_screen(reply["room_id"]):
                         self.add_chat_screen(
@@ -189,6 +194,7 @@ class ClientUI(MDApp):
 
                     screen = chats_screen_manager.get_screen(reply["room_id"])
                     screen.add_message(reply["data"], Colors.text_dark)
+                    screen.ids["typing"].text = ""
                 case "msg.sent":
                     # add message to self screen only when we get confirmation from server
                     screen = chats_screen_manager.get_screen(reply["room_id"])
@@ -482,3 +488,10 @@ class ClientUI(MDApp):
                 self.theme_changed = True
             else:
                 self.idle_time += 1
+
+    def reset_theme(self):
+        """Resets the theme back to defaults"""
+        self.idle_time = 0
+        if self.theme_changed:
+            Colors.reset()
+            self.theme_changed = False

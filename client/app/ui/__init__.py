@@ -140,8 +140,21 @@ class ChatMessagesScreen(MDScreen):
 
     def _on_keyboard_down(self, instance, keyboard, keycode, text, modifiers):
         """Event press enter twice or use shift + enter to send message."""
-        if self.ids.chat_input.focus and (keycode == 40 or keycode == 225):
-            self.times_validated += 1
+        if self.ids.chat_input.focus:
+            if keycode == 40 or keycode == 225:
+                self.times_validated += 1
+
+            data = {
+                "type": "msg.typing.send",
+                "room_id": self.name,
+                "other_username": self.other_user,
+                "other_id": self.app.get_other_user_id(self.name),
+                "timestamp": str(datetime.now().timestamp()),
+                "data": self.ids["chat_input"].text,
+            }
+            self.app.reset_theme()
+            self.app.send_data(value=data)
+
         if self.times_validated == 2:
             self.send_message(self.ids.chat_input.text)
             self.times_validated = 0
