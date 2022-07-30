@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 
 from kivy import Logger
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.properties import BooleanProperty, StringProperty
 from kivy.uix.screenmanager import ScreenManager
@@ -15,6 +16,7 @@ from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.list import OneLineListItem
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.textfield import MDTextField
 
 from ..utils import Colors
 
@@ -159,6 +161,18 @@ class OneLineListItemAligned(OneLineListItem):
             self.md_bg_color = Colors.primary_bg_text
 
 
+def get_focus(text_input_field: MDTextField):
+    """Enable the focus on a MDTextField.
+
+    :param text_input_field field to give focus to
+    """
+
+    def get_focus_wrapper(dt):
+        text_input_field.focus = True
+
+    Clock.schedule_once(get_focus_wrapper)
+
+
 class ChatMessagesScreen(MDScreen):
     """Class representing a chat screen."""
 
@@ -181,9 +195,15 @@ class ChatMessagesScreen(MDScreen):
 
     def _on_keyboard_down(self, instance, keyboard, keycode, text, modifiers):
         """Event press enter twice or use shift + enter to send message."""
-        if self.ids.chat_input.focus:
+        send_message = False
+        chat_input: MDTextField
+        chat_input = self.ids.chat_input
+        if chat_input.focus:
             if keycode == 40 or keycode == 225:
-                self.times_validated += 1
+                if self.allow_single_enter:
+                    send_message = True
+                else:
+                    self.times_validated += 1
 
             data = {
                 "type": "msg.typing.send",
@@ -191,17 +211,46 @@ class ChatMessagesScreen(MDScreen):
                 "other_username": self.other_user,
                 "other_id": self.app.get_other_user_id(self.name),
                 "timestamp": str(datetime.now().timestamp()),
-                "data": self.ids["chat_input"].text,
+                "data": chat_input.text,
             }
             self.app.reset_theme()
             self.app.send_data(value=data)
 
-        if self.allow_single_enter:
+        if not self.allow_single_enter and self.times_validated == 2:
+            send_message = True
+            self.times_validated = 0
+
+        if send_message and chat_input.text:
+            messages = self.messages[self.app.user_id]
+            if len(messages) >= self.app.spam_count:
+                secs = days_hours_minutes_seconds(
+                    datetime.now()
+                    - datetime.fromtimestamp(messages[-self.app.spam_count].timestamp)
+                )[-1]
+                if secs % 60 <= self.app.spam_time:
+                    if self.message_sent_spam >= self.app.spam_count:
+                        chat_input.readonly = True
+                        chat_input.focus = False
+                        chat_input.helper_text_color_normal = [1, 0, 0, 1]
+                        chat_input.helper_text_color_focus = [1, 0, 0, 1]
+                        chat_input.helper_text = (
+                            r"Spamming detected... messaging disabled ¯ \ _ ( ツ ) _ / ¯"
+                        )
+                        Clock.schedule_once(self.enable_text_input, self.app.spam_time)
+                    else:
+                        self.message_sent_spam += 1
+
             self.send_message(self.ids.chat_input.text)
 
-        elif self.times_validated == 2:
-            self.send_message(self.ids.chat_input.text)
-            self.times_validated = 0
+    def enable_text_input(self, dt):
+        """Enables the chat input on a chat screen"""
+        chat_input = self.ids.chat_input
+        chat_input.readonly = False
+        chat_input.helper_text = "Enter your message"
+        chat_input.helper_text_color_normal = Colors.primary_bg
+        chat_input.helper_text_color_focus = Colors.primary_bg
+        chat_input.focus = True
+        self.message_sent_spam = 0
 
     def send_message(self, message: str):
         """Send message to server."""
@@ -214,6 +263,7 @@ class ChatMessagesScreen(MDScreen):
                 "room_id": self.name,
             }
             self.disable_chat_input = True
+            get_focus(self.ids.chat_input)
             self.app.send_data(value=msg_data)
 
     def add_message(

@@ -64,7 +64,7 @@ class ClientUI(MDApp):
     theme_changed: bool = BooleanProperty(False)
     spam_time: int = NumericProperty(5)  # check for messages in the time frame (secs)
     spam_count: int = NumericProperty(
-        5
+        1
     )  # max number of message that one can send in spam_time
 
     def __init__(self, **kwargs):
