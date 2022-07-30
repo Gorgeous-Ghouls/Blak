@@ -1,13 +1,15 @@
-from datetime import datetime
+from __future__ import annotations
+
+from datetime import datetime, timedelta
 
 from kivy import Logger
 from kivy.core.window import Window
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, StringProperty
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.scrollview import ScrollView
+from kivy.utils import get_hex_from_color
 from kivymd.app import MDApp
 from kivymd.uix.button import BaseButton
-from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.gridlayout import MDGridLayout
@@ -17,6 +19,14 @@ from kivymd.uix.screen import MDScreen
 from ..utils import Colors
 
 
+def days_hours_minutes_seconds(td: timedelta) -> tuple[int, int, int, int]:
+    """Converts timedelta to days, hours, minutes, and secs
+
+    :returns tuple(days, hours, minutes, secs)
+    """
+    return td.days, td.seconds // 3600, (td.seconds // 60) % 60, td.seconds
+
+
 class Dialog(MDDialog):
     """Custom dialog with a few changes"""
 
@@ -24,7 +34,9 @@ class Dialog(MDDialog):
 
     def __init__(self, *args, **kwargs):
         if title := kwargs.get("title", None):
-            kwargs["title"] = f"[color={Colors.accent_bg_text}]{title}[/color]"
+            kwargs[
+                "title"
+            ] = f"[color={get_hex_from_color(Colors.accent_bg_text)}]{title}[/color]"
         super().__init__(**kwargs)
 
     def on_active(self, instance, active):
@@ -42,25 +54,22 @@ class LoginScreen(MDFloatLayout):
         self.ids["password"].text = ""
 
 
-class ChatItem(MDCard):
+class ChatItem(MDGridLayout):
     """Class representing a chat."""
 
     # ask can I use dataclass here somehow ? the args in __init__ need to be set before super call
 
-    def __init__(
-        self,
-        username: str,
-        custom_id: str,
-        last_seen: str = "",
-        msg_count: str = "",
-        **kwargs,
-    ):
+    Items: dict[str, ChatItem] = dict()
+    username: str = StringProperty()
+    custom_id: str = StringProperty()
+    last_seen: str = StringProperty(defaultvalue="Never")
+    msg_count: str = StringProperty(defaultvalue="0")
 
-        self.username = username
-        self.custom_id = custom_id
-        self.last_seen = last_seen
-        self.msg_count = msg_count
-        super(ChatItem, self).__init__()
+    def __init__(self, **kwargs):
+        super(ChatItem, self).__init__(**kwargs)
+        self.app = MDApp.get_running_app()
+        self.timestamp: float = 0.0
+        ChatItem.Items.update({self.custom_id: self})
 
     def on_touch_down(self, touch) -> bool:
         """Event Fired everytime mouse is released to tap is released."""
@@ -75,6 +84,21 @@ class ChatItem(MDCard):
             return False
 
             # switch screen to the chat
+
+    def set_last_seen(self, dt):
+        """Updates last seen is called every second by a callback"""
+        days, hours, minutes, secs = days_hours_minutes_seconds(
+            datetime.now() - datetime.fromtimestamp(float(self.timestamp))
+        )
+        if days > 0:
+            last_seen = f"{days}d"
+        elif hours > 0:
+            last_seen = f"{hours}h"
+        elif minutes > 0:
+            last_seen = f"{minutes}m"
+        else:
+            last_seen = f"{secs % 60}s"
+        self.last_seen = f"{last_seen} ago"
 
 
 class TitleBar(MDFloatLayout):
@@ -117,8 +141,19 @@ class TitleBar(MDFloatLayout):
 class OneLineListItemAligned(OneLineListItem):
     """OneLineListItem that allows horizontal alignment"""
 
-    def __init__(self, halign, **kwargs):
+    def __init__(
+        self, halign, message_id: str = None, timestamp: float | str = None, **kwargs
+    ):
         super(OneLineListItemAligned, self).__init__(**kwargs)
+        if message_id:
+            self.message_id: str = message_id
+        if timestamp:
+            if isinstance(timestamp, str) and timestamp.isdigit():
+                timestamp = float(timestamp)
+            self.timestamp: float = timestamp
+        else:
+            self.timestamp = datetime.now().timestamp()
+
         self.ids._lbl_primary.halign = halign
         if halign == "right":
             self.md_bg_color = Colors.primary_bg_text
@@ -178,6 +213,8 @@ class ChatMessagesScreen(MDScreen):
         text_color: list,
         halign: str = "left",
         clear_input: bool = False,
+        message_id: str = "",
+        timestamp: str = "",
     ) -> OneLineListItemAligned:
         """Adds a received message to the screen."""
         if clear_input:
@@ -185,9 +222,19 @@ class ChatMessagesScreen(MDScreen):
             self.ids["chat_input"].text = ""
 
         chat_message = OneLineListItemAligned(
-            halign, text=message, theme_text_color="Custom", text_color=text_color
+            halign,
+            text=message,
+            theme_text_color="Custom",
+            text_color=text_color,
+            message_id=message_id,
+            timestamp=timestamp,
         )
         self.ids["chat_list"].add_widget(chat_message)
+
+        # increase message count in UI
+        chat = ChatItem.Items.get(self.name)
+        chat.msg_count = str(int(chat.msg_count) + 1)
+
         return chat_message
 
     def scroll_to_message(self, widget: OneLineListItemAligned):
