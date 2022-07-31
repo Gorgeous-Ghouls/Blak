@@ -16,6 +16,7 @@ WEBSOCKET_HOST=<ip or url:port>
 and start the server by: (only needed if u want to run on localhost, as server is deployed)
 ```
 cd server
+poetry install
 poetry run blak-server
 ```
 
