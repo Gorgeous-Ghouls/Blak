@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime, timedelta
 
 from kivy import Logger
@@ -208,7 +209,9 @@ class ChatMessagesScreen(MDScreen):
         Window.bind(on_key_down=self._on_keyboard_down)
         self.times_validated = 0
         self.message_sent_spam = 0  # messages sent in spam_time
-        self.allow_single_enter = True
+        self.allow_single_enter = (
+            True if os.getenv("allow_single_enter", "false") != "false" else False
+        )
 
     def _on_keyboard_down(self, instance, keyboard, keycode, text, modifiers):
         """Event press enter twice or use shift + enter to send message."""

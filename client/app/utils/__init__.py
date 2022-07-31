@@ -13,9 +13,10 @@ class ColorsBase(EventDispatcher):
     primary_bg_text = ColorProperty(defaultvalue="#2d383b")
     accent_bg = ColorProperty(defaultvalue="#3F4E4F")
     accent_bg_text = ColorProperty(defaultvalue="#576a6b")
-    text = ColorProperty(defaultvalue="#000000")
+    text = ColorProperty(defaultvalue="#FFFFFF")
     text_medium = ColorProperty(defaultvalue="#DCD7C9")
     text_dark = ColorProperty(defaultvalue="#A27B5C")
+    button_bg = ColorProperty(defaultvalue="#5b7071")
 
     def reset(self):
         """Reset the value of colors to default"""
