@@ -3,7 +3,7 @@
     helper_text_mode: "on_focus"
     text_color_normal: Colors.text_dark
     text_color_focus: Colors.text_medium
-    hint_text_color_normal: Colors.primary_bg
+    hint_text_color_normal: Colors.text
     hint_text_color_focus: Colors.accent_bg_text
     line_color_focus: Colors.text_dark
 
@@ -12,19 +12,26 @@
     MDBoxLayout:
         orientation: "vertical"
         adaptive_height: True
-        size_hint_x: 0.2
-        padding: "10dp", 0, "10dp", "5dp"
+        size_hint_x: 0.5
+        padding: "20dp", 0, "20dp", "10dp"
         pos_hint: {'center_x': 0.5,'center_y': 0.5}
         spacing: "10dp"
         radius: 10
         md_bg_color: Colors.accent_bg
+        line_color: Colors.accent_bg
 
         LoginField:
             id: username
+            color_mode: 'custom'
+            line_color_normal:"#FFFFFF"
+            line_color_focus: "#FFFFFF"
             hint_text: "Username"
             required: True
         LoginField:
             id: password
+            color_mode: 'custom'
+            line_color_normal:"#FFFFFF"
+            line_color_focus: "#FFFFFF"
             hint_text: "Password"
             password: True
             required: True
@@ -41,11 +48,16 @@
             pos_hint: {'center_x': 0.5,'center_y': 0.5}
             rows: 1
             MDRectangleFlatButton:
-                text: "Login"
+                text: "[color=#FFFFFF]Login[/color]"
                 disabled: app.login_data_sent
+                md_bg_color: Colors.button_bg
+                line_color: Colors.button_bg
+                radius: [24, ]
                 on_release: app.do_login(username.text, password.text)
             MDRectangleFlatButton:
                 id: register_button
-                text: "Register"
+                text: "[color=#FFFFFF]Register[/color]"
+                md_bg_color: Colors.button_bg
+                line_color: Colors.button_bg
                 disabled: app.login_data_sent
                 on_release: app.do_login(username.text, password.text, True)
