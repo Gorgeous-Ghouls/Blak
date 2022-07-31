@@ -1,4 +1,6 @@
 #:import Colors app.utils.Colors
+#:import Bugs app.ui.extras.Bugs
+
 <LoginField@MDTextField>:
     helper_text_mode: "on_focus"
     text_color_normal: Colors.text_dark
@@ -61,3 +63,12 @@
                 line_color: Colors.button_bg
                 disabled: app.login_data_sent
                 on_release: app.do_login(username.text, password.text, True)
+
+    MDFlatButton:
+        adaptive_width:True
+        pos_hint: {'right': 1, 'bottom': 1}
+        text: "Feature"
+        md_bg_color: Colors.accent_bg
+        theme_text_color: "Custom"
+        text_color: Colors.text_medium
+        on_release: Bugs().add_bug(root)
