@@ -8,6 +8,9 @@ name: docker-publish
 on:
   workflow_dispatch:
   push:
+    paths:
+      - "server/*"
+
     branches: [ main ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
