@@ -1,4 +1,4 @@
-## install info 
+## install info
 Both client and server, contain seperate pyproject.toml (must have poetry installed)
 so just cd into dir and run
 ```
