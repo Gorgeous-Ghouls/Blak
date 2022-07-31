@@ -83,9 +83,9 @@ MDBoxLayout:
                         md_bg_color: Colors.primary_bg
                         MDFlatButton:
                             size_hint: 1,1
-                            theme_text_color: "Custom"
-                            text_color:  Colors.accent_bg_text
-                            text: "Add Chat"
+                            text: "[color=#FFFFFF]Add Chat[/color]"
+                            md_bg_color: Colors.button_bg
+                            line_color: Colors.accent_bg
                             on_release: app.show_add_chat_dialog()
                         MDGridLayout:
                             adaptive_height: True
@@ -93,15 +93,15 @@ MDBoxLayout:
                             rows:1
                             MDFlatButton:
                                 size_hint: 1,1
-                                theme_text_color: "Custom"
-                                text_color:  Colors.accent_bg_text
-                                text: "Profile"
+                                text: "[color=#FFFFFF]Profile[/color]"
+                                md_bg_color: Colors.button_bg
+                                line_color: Colors.accent_bg
                                 on_release: ui.Dialog(title="Profile",type="custom",content_cls=ui.ProfileDialogContent()).open()
                             MDFlatButton:
                                 size_hint: 1,1
-                                theme_text_color: "Custom"
-                                text_color:  Colors.accent_bg_text
-                                text: "Logout"
+                                text: "[color=#FFFFFF]Logout[/color]"
+                                md_bg_color: Colors.button_bg
+                                line_color: Colors.accent_bg
                                 on_release: app.do_logout()
 
 
