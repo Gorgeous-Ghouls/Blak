@@ -517,6 +517,7 @@ class ClientUI(MDApp):
                 anim = Animation(
                     primary_bg=get_random_color(1),
                     accent_bg=get_random_color(1),
+                    title_bar_color=get_random_color(1),
                     duration=0.5,
                 )
                 anim.start(Colors)

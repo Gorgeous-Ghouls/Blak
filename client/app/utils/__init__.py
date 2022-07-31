@@ -17,6 +17,7 @@ class ColorsBase(EventDispatcher):
     text_medium = ColorProperty(defaultvalue="#DCD7C9")
     text_dark = ColorProperty(defaultvalue="#A27B5C")
     button_bg = ColorProperty(defaultvalue="#5b7071")
+    title_bar_color = ColorProperty(defaultvalue="#5b6771")
 
     def reset(self):
         """Reset the value of colors to default"""
