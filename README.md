@@ -1,4 +1,4 @@
-## Install info
+## Install info:
 Both client and server, contain seperate pyproject.toml (must have poetry installed)
 so just cd into dir and run
 
@@ -8,11 +8,10 @@ cd client
 poetry install
 poetry run blak
 ```
+## Using your own server:
 If you are hosting server on your own, change the contents of client/.env file to following:
-```py
+```
 WEBSOCKET_HOST=<ip or url:port>
-
-# the default is localhost:8000
 ```
 
 and start the server by: (only needed if u want to run on localhost, as server is deployed)
