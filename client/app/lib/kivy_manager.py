@@ -202,6 +202,7 @@ class ClientUI(MDApp):
                     screen = chats_screen_manager.get_screen(reply["room_id"])
                     screen.add_message(
                         reply["data"],
+                        reply["user_id"],
                         Colors.text_dark,
                     )
                     screen.ids["typing"].text = ""
@@ -213,6 +214,7 @@ class ClientUI(MDApp):
                     screen = chats_screen_manager.get_screen(reply["room_id"])
                     screen.add_message(
                         "",
+                        self.user_id,
                         Colors.text_medium,
                         clear_input=True,
                         halign="right",
@@ -253,12 +255,14 @@ class ClientUI(MDApp):
                                 if message["sender"] == str(self.user_id):
                                     msg = screen.add_message(
                                         message["message"],
+                                        self.user_id,
                                         Colors.text_medium,
                                         halign="right",
                                     )
                                 else:
                                     msg = screen.add_message(
                                         message["message"],
+                                        message["sender"],
                                         Colors.text_dark,
                                     )
                                     last_msg_timestamp = message["timestamp"]

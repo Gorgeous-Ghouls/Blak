@@ -144,9 +144,15 @@ class OneLineListItemAligned(OneLineListItem):
     """OneLineListItem that allows horizontal alignment"""
 
     def __init__(
-        self, halign, message_id: str = None, timestamp: float | str = None, **kwargs
+        self,
+        halign,
+        message_id: str = None,
+        timestamp: float | str = None,
+        user_id: str = None,
+        **kwargs,
     ):
         super(OneLineListItemAligned, self).__init__(**kwargs)
+        self.user_id = user_id
         if message_id:
             self.message_id: str = message_id
         if timestamp:
@@ -269,6 +275,7 @@ class ChatMessagesScreen(MDScreen):
     def add_message(
         self,
         message: str,
+        user_id: str,
         text_color: list,
         halign: str = "left",
         clear_input: bool = False,
@@ -287,10 +294,11 @@ class ChatMessagesScreen(MDScreen):
             text_color=text_color,
             message_id=message_id,
             timestamp=timestamp,
+            user_id=user_id,
         )
         self.ids["chat_list"].add_widget(chat_message)
 
-        if halign == "right":
+        if user_id == self.app.user_id:
             self.messages[self.app.user_id].append(chat_message)
         else:
             self.messages[self.other_user].append(chat_message)
