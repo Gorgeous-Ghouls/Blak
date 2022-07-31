@@ -66,6 +66,9 @@ class ClientUI(MDApp):
     spam_count: int = NumericProperty(1)
     # max number of message that one can send in spam_time
     login_focus_set: bool = BooleanProperty(False)
+    websocket_host: str | StringProperty = StringProperty(
+        defaultvalue="vmi656705.contaboserver.net:8001"
+    )
 
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
@@ -101,7 +104,10 @@ class ClientUI(MDApp):
 
     def on_start(self):
         """Called just before the app window is shown"""
-        Logger.info(f"ws host: {os.getenv('WEBSOCKET_HOST', 'localhost')}")
+        self.websocket_host = os.getenv(
+            "WEBSOCKET_HOST", ClientUI.websocket_host.defaultvalue
+        )
+        Logger.info(f"ws host: {self.websocket_host}")
         Window.bind(on_motion=self.on_motion)
         Window.bind(on_cursor_enter=lambda *args: self.on_focus(True))
         Window.bind(on_cursor_leave=lambda *args: self.on_focus(False))
@@ -159,9 +165,7 @@ class ClientUI(MDApp):
                     )
             if connection_closed:
                 try:
-                    self.ws = await websockets.connect(
-                        f"ws://{os.getenv('WEBSOCKET_HOST', 'localhost:8000')}/ws"
-                    )
+                    self.ws = await websockets.connect(f"ws://{self.websocket_host}/ws")
                     await self.connection_established()
                     connection_closed = False
                 except (OSError, asyncio.exceptions.CancelledError):
