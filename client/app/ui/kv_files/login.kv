@@ -51,16 +51,22 @@
             pos_hint: {'center_x': 0.5,'center_y': 0.5}
             rows: 1
             MDRectangleFlatButton:
-                text: "[color=#FFFFFF]Login[/color]"
+                text: "Login"
+                text_color: Colors.text
                 disabled: app.login_data_sent
                 md_bg_color: Colors.button_bg
+                md_bg_color_disabled: Colors.accent_bg
+                disabled_color: Colors.accent_bg_text
                 line_color: Colors.button_bg
                 radius: [24, ]
                 on_release: app.do_login(username.text, password.text)
             MDRectangleFlatButton:
                 id: register_button
-                text: "[color=#FFFFFF]Register[/color]"
+                text: "Register"
+                text_color: Colors.text
                 md_bg_color: Colors.button_bg
+                md_bg_color_disabled: Colors.accent_bg
+                disabled_color: Colors.accent_bg_text
                 line_color: Colors.button_bg
                 disabled: app.login_data_sent
                 on_release: app.do_login(username.text, password.text, True)
