@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "blak"
+name = "blak-server"
 version = "1.0.0"
 description = "Server for Blak chat client"
 authors = ["p0lygun <solankivibhakar82@mail.com>"]  # todo: all team members add themselves
