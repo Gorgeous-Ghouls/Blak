@@ -223,7 +223,6 @@ class ClientUI(MDApp):
 
                 case "user.login.success":
                     if data := reply["data"]:  # login Successful
-                        self.title += f" {data['user_id']}"
                         self.user_id = data["user_id"]
 
                         self.username = data["username"]
