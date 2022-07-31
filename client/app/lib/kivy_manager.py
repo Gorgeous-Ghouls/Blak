@@ -71,6 +71,9 @@ class ClientUI(MDApp):
     )
 
     def __init__(self, **kwargs):
+        self.websocket_host = os.getenv(
+            "WEBSOCKET_HOST", ClientUI.websocket_host.defaultvalue
+        )
         super().__init__(title="Blak", **kwargs)
         self.ws_handler_task = None
         self.root: MDBoxLayout
@@ -104,9 +107,6 @@ class ClientUI(MDApp):
 
     def on_start(self):
         """Called just before the app window is shown"""
-        self.websocket_host = os.getenv(
-            "WEBSOCKET_HOST", ClientUI.websocket_host.defaultvalue
-        )
         Logger.info(f"ws host: {self.websocket_host}")
         Window.bind(on_motion=self.on_motion)
         Window.bind(on_key_down=self.on_key_down)
@@ -372,7 +372,7 @@ class ClientUI(MDApp):
 
     async def connection_established(self):
         """Function called whenever connection with the server is established"""
-        Logger.info("WS: Connected")
+        Logger.info(f"WS: Connected to {self.websocket_host}")
         self.connection_status = "Connected"
         if Window.custom_titlebar:
             self.root.ids["titlebar"].ids[
