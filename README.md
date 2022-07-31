@@ -1,22 +1,22 @@
-## install info
+## Install info 
 Both client and server, contain seperate pyproject.toml (must have poetry installed)
 so just cd into dir and run
-```
-poetry install
-```
 
-Then to run the client (while being in the client dir)
+To run the install pacakges and run the client:
 ```
+cd client
+poetry install
 poetry run blak
 ```
-or (if u hosted the server yourself)
+If you are hosting server on your own, change the contents of client/.env file to following:
 ```
-WEBSOCKET_HOST=localhost:8000
+WEBSOCKET_HOST=<ip or url:port>
 ```
 
-and start the server by (cd to server/) (only needed if u want to run on localhost, as server is deployed)
+and start the server by: (only needed if u want to run on localhost, as server is deployed)
 ```
-poertry run blak-server
+cd server
+poetry run blak-server
 ```
 
 
