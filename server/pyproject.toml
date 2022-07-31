@@ -2,7 +2,7 @@
 name = "blak-server"
 version = "1.0.0"
 description = "Server for Blak chat client"
-authors = ["p0lygun <solankivibhakar82@mail.com>"]  # todo: all team members add themselves
+authors = ["p0lygun <solankivibhakar82@mail.com>","StoneSteel27 <stonesteel27@gmail.com>"]  # todo: all team members add themselves
 license = "MIT"
 packages= [
     {include = "server"}
