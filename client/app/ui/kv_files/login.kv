@@ -9,6 +9,17 @@
     hint_text_color_focus: Colors.accent_bg_text
     line_color_focus: Colors.text_dark
 
+<LoginFieldButtons@MDRectangleFlatButton>
+    radius: [24, ]
+    text_color: Colors.text
+    md_bg_color: Colors.button_bg
+    line_color: Colors.button_bg
+
+    md_bg_color_disabled: Colors.accent_bg
+    disabled_color: Colors.accent_bg_text
+
+    disabled: app.login_data_sent
+
 <LoginScreen>:
     size_hint: 1,1
     MDBoxLayout:
@@ -50,25 +61,12 @@
             spacing: 5
             pos_hint: {'center_x': 0.5,'center_y': 0.5}
             rows: 1
-            MDRectangleFlatButton:
+            LoginFieldButtons:
                 text: "Login"
-                text_color: Colors.text
-                disabled: app.login_data_sent
-                md_bg_color: Colors.button_bg
-                md_bg_color_disabled: Colors.accent_bg
-                disabled_color: Colors.accent_bg_text
-                line_color: Colors.button_bg
-                radius: [24, ]
                 on_release: app.do_login(username.text, password.text)
-            MDRectangleFlatButton:
+            LoginFieldButtons:
                 id: register_button
                 text: "Register"
-                text_color: Colors.text
-                md_bg_color: Colors.button_bg
-                md_bg_color_disabled: Colors.accent_bg
-                disabled_color: Colors.accent_bg_text
-                line_color: Colors.button_bg
-                disabled: app.login_data_sent
                 on_release: app.do_login(username.text, password.text, True)
 
     MDFlatButton:
