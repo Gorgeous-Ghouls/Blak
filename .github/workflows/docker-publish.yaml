@@ -1,4 +1,4 @@
-name: MakeDockerImage
+name: Build and push Docker image
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -13,7 +13,7 @@ on:
     tags: [ 'v*.*.*' ]
 
 env:
-  IMAGE_NAME: server
+  IMAGE_NAME: blak-server
 
 jobs:
   # Push image to GitHub Packages.
@@ -25,14 +25,13 @@ jobs:
       run:
         working-directory: server/
 
-
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
 
       - name: Build image
-        run: docker build . --file dockerfile --tag $IMAGE_NAME
+        run: docker build . --file .dockerfile --tag $IMAGE_NAME
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
