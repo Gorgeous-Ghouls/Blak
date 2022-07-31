@@ -302,6 +302,17 @@ class ClientUI(MDApp):
                     )
                     self.login_data_sent = False
 
+                case "user.register.rejected":
+                    login_screen = (
+                        self.root.ids["app_screen_manager"]
+                        .get_screen("login")
+                        .children[0]
+                    )
+                    login_screen.reset_fields()
+
+                    self.login_helper_text = "User exists try again.."
+                    self.login_data_sent = False
+
                 case "room.create.success":
                     room_id: str
                     if room_id := reply["room_id"]:
