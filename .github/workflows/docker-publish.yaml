@@ -1,4 +1,4 @@
-name: Build and push Docker image
+name: docker-publish
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -31,7 +31,7 @@ jobs:
           submodules: true
 
       - name: Build image
-        run: docker build . --file .dockerfile --tag $IMAGE_NAME
+        run: docker build . --file dockerfile --tag $IMAGE_NAME
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
