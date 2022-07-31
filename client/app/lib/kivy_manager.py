@@ -373,7 +373,7 @@ class ClientUI(MDApp):
         if Window.custom_titlebar:
             self.root.ids["titlebar"].ids[
                 "connection_status_label"
-            ].color = Colors.accent_bg_text
+            ].color = Colors.primary_bg_text
         else:
             self.set_window_title()
         self.login_data_sent = False
