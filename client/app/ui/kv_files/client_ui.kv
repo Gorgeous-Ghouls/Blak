@@ -2,6 +2,7 @@
 
 #:import Colors app.utils.Colors
 #:import ui app.ui
+#:import Bugs app.ui.extras.Bugs
 #:import pyperclip pyperclip
 <Dialog>:
     md_bg_color: Colors.primary_bg
@@ -61,6 +62,7 @@ MDBoxLayout:
 
         MDScreen:
             name: "app"
+            on_enter: Bugs.clear_bugs()
             MDBoxLayout:
                 MDFloatLayout: # needed so that we always have background color
                     md_bg_color: Colors.accent_bg

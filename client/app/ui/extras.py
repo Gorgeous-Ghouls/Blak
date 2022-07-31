@@ -1,6 +1,7 @@
 import random
 
 from app.utils import app_dir
+from kivy._clock import ClockEvent
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -13,6 +14,9 @@ from kivy.utils import get_random_color
 class Bugs:
     """Class of bugs"""
 
+    callbacks: list[ClockEvent] = []
+    bugs: list[Image] = []
+
     def __init__(self):
         self.source = str(app_dir / "ui/static/bug.png")
 
@@ -24,7 +28,10 @@ class Bugs:
         img.size_hint = None, None
         img.size = (dp(20), dp(20))
         img.color = get_random_color()
-        Clock.schedule_interval(lambda dt: self.animate_color(img), 1)
+        Bugs.callbacks.append(
+            Clock.schedule_interval(lambda dt: self.animate_color(img), 1)
+        )
+        Bugs.bugs.append(img)
         parent.add_widget(img)
 
     @staticmethod
@@ -37,3 +44,13 @@ class Bugs:
             duration=0.5,
         )
         anim.start(img)
+
+    @staticmethod
+    def clear_bugs():
+        """Removes all the bugs..."""
+        for callback in Bugs.callbacks:
+            callback.cancel()
+        for bug in Bugs.bugs:
+            bug.parent.remove_widget(
+                bug
+            )  # asking your parent to remove you, smh sad life of a bug :(
