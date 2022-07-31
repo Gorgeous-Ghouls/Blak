@@ -109,6 +109,7 @@ class ClientUI(MDApp):
         )
         Logger.info(f"ws host: {self.websocket_host}")
         Window.bind(on_motion=self.on_motion)
+        Window.bind(on_key_down=self.on_key_down)
         Window.bind(on_cursor_enter=lambda *args: self.on_focus(True))
         Window.bind(on_cursor_leave=lambda *args: self.on_focus(False))
         Clock.schedule_interval(
@@ -124,6 +125,10 @@ class ClientUI(MDApp):
     def on_motion(self, *args):
         """Triggered every time there is any kind of motion on the window"""
         self.reset_theme()
+
+    def on_key_down(self, *args):
+        """Fired every time a key is pressed"""
+        self.on_motion()
 
     async def app_func(self) -> tuple[BaseException | Any, BaseException | Any]:
         """A wrapper function to start websocket client and kivy simultaneously

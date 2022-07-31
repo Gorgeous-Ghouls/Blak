@@ -233,7 +233,6 @@ class ChatMessagesScreen(MDScreen):
                 "timestamp": str(datetime.now().timestamp()),
                 "data": chat_input.text,
             }
-            self.app.reset_theme()
             self.app.send_data(value=data)
 
         if not self.allow_single_enter and self.times_validated == 2:
