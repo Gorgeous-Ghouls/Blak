@@ -149,9 +149,7 @@ class ClientUI(MDApp):
         while True:
             if self.ws:
                 try:
-                    await self.handle_recv_data(
-                        await self.ws.recv()
-                    )  # todo: write a wrapper to parse incoming data and update kivy accordingly
+                    await self.handle_recv_data(await self.ws.recv())
                 except websockets.ConnectionClosed:
                     await self.connection_lost()
                     connection_closed = True
@@ -179,8 +177,6 @@ class ClientUI(MDApp):
 
     async def handle_recv_data(self, reply: str):
         """Handles data sent by server"""
-        # todo complete data handling
-        # todo discuss should we move this to a separate file ?
         try:
             reply = json.loads(reply)
             Logger.debug(f"hrd: {reply}")
@@ -366,7 +362,6 @@ class ClientUI(MDApp):
                 ]  # red
             else:
                 self.set_window_title()
-            # todo enumerate things that are needed to be done when connection is lost
         except AttributeError:  # when ws_handler_task exits after run_wrapper is finished
             sys.exit(0)
 
@@ -381,17 +376,6 @@ class ClientUI(MDApp):
         else:
             self.set_window_title()
         self.login_data_sent = False
-        # todo enumerate things that are needed to be done when connection is established
-
-    def add_chat(self, user_id: str):
-        """Adds new user to Chat list container"""
-        # todo complete addition of chats when a successful response or request to add a chat is received
-        pass
-
-    async def add_chat_wrapper(self, user_id: str):
-        """Adds new user to Chat list container"""
-        # todo complete addition of chats when a successful response or request to add a chat is received
-        pass
 
     async def check_user_id(self, user_id: str, dialog: ui.Dialog):
         """Sends request to the server to check if user with user_id exists"""
