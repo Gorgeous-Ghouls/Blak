@@ -62,6 +62,10 @@ class ClientUI(MDApp):
     idle_timeout: int = NumericProperty(5)
     idle_time: int = NumericProperty()
     theme_changed: bool = BooleanProperty(False)
+    spam_time: int = NumericProperty(5)  # check for messages in the time frame (secs)
+    spam_count: int = NumericProperty(1)
+    # max number of message that one can send in spam_time
+    login_focus_set: bool = BooleanProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(title="Blak", **kwargs)
@@ -99,6 +103,8 @@ class ClientUI(MDApp):
         """Called just before the app window is shown"""
         Logger.info(f"ws host: {os.getenv('WEBSOCKET_HOST', 'localhost')}")
         Window.bind(on_motion=self.on_motion)
+        Window.bind(on_cursor_enter=lambda *args: self.on_focus(True))
+        Window.bind(on_cursor_leave=lambda *args: self.on_focus(False))
         Clock.schedule_interval(
             lambda dt: self.invert_theme(), 1
         )  # try to invert theme every second
@@ -510,3 +516,20 @@ class ClientUI(MDApp):
         if self.theme_changed:
             Colors.reset()
             self.theme_changed = False
+
+    def on_focus(self, focus):
+        """Fired everytime window gets or loses focus"""
+        screen_manager = self.root.ids["app_screen_manager"]
+        if screen_manager.current == "login":
+            if focus and not self.login_focus_set:
+                login_screen = screen_manager.get_screen("login").children[0]
+                username = login_screen.ids["username"]
+                password = login_screen.ids["password"]
+                if not self.login_focus_set:
+                    if not username.text:
+                        username.focus = True
+                    else:
+                        password.focus = True
+                self.login_focus_set = True
+            else:
+                self.login_focus_set = False
