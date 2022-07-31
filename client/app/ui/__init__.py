@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 
 from kivy import Logger
+from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.properties import BooleanProperty, StringProperty
@@ -76,16 +77,26 @@ class ChatItem(MDGridLayout):
     def on_touch_down(self, touch) -> bool:
         """Event Fired everytime mouse is released to tap is released."""
         if self.collide_point(*touch.pos):
+            self.animate(md_bg_color=Colors.primary_bg, duration=0.2)
             screen_manager: ScreenManager
             screen_manager = MDApp.get_running_app().root.ids["chats_screen_manager"]
             if screen_manager.has_screen(self.custom_id):
+                # switch to the corresponding chat screen
                 screen_manager.current = self.custom_id
                 return True
             else:
                 Logger.info(f"{self.custom_id} screen not found")
             return False
 
-            # switch screen to the chat
+    def on_touch_up(self, touch):
+        """Fired everytime window dispatches an `on_touch_up` event"""
+        if self.collide_point(*touch.pos):
+            self.animate(md_bg_color=Colors.accent_bg)
+
+    def animate(self, duration: float = 0.2, **kwargs):
+        """Animates properties of the class"""
+        anim = Animation(duration=duration, **kwargs)
+        anim.start(self)
 
     def set_last_seen(self, dt):
         """Updates last seen is called every second by a callback"""
