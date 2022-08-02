@@ -43,7 +43,7 @@ cd server
 poetry install
 poetry run blak-server
 ```
-And in the `client/.env` file, change the replace `url:port` to server's running `url:port`
+And in the `client/.env` file, change and replace `url:port` to server's running `url:port`
 ```sh
 WEBSOCKET_HOST=<ip or url:port>
 ```
