@@ -1,7 +1,7 @@
 # Blak
 ## _The Remarkable Place to Prattle, Ever_
 
-Blak is a cross-platform, FastAPI-powered, 
+Blak is a cross-platform, FastAPI-powered,
 Websocket based Chat Application, made for **Python-Discord's Summer Code Jam 9**.
 
 
@@ -49,8 +49,10 @@ WEBSOCKET_HOST=<ip or url:port>
 ```
 
 ## Docker
-TODO
-
+Run the server with `docker`
+```sh
+docker run -p 8001:8000 -d ghcr.io/gorgeous-ghouls/blak/blak-server
+```
 ## License
 
 MIT
